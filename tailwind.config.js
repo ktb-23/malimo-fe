@@ -2,6 +2,9 @@
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
+    fontFamily: {
+      ddin: ['D-DIN', 'sans-serif'],
+    },
     colors: {
       transparent: 'transparent',
       current: 'currentColor',
