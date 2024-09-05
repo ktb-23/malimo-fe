@@ -3,23 +3,46 @@ import { useNavigate } from 'react-router-dom';
 import WebNav from './WebNav';
 import BigButton from '../component/BigButton';
 import Input from '../component/Input';
+import {
+  validateNickname,
+  validateEmail,
+  validatePassword,
+  validatePasswordConfirmation,
+  checkDuplicateNickname,
+} from '../config/validation';
 
 const SignupForm = () => {
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-    // 회원가입 로직을 여기에 구현합니다.
-    console.log('회원가입 시도:', { nickname, email, password, confirmPassword });
-    // 예: API 호출, 상태 업데이트 등
+    const newErrors = {};
+
+    newErrors.nickname = validateNickname(nickname);
+    newErrors.email = validateEmail(email);
+    newErrors.password = validatePassword(password);
+    newErrors.confirmPassword = validatePasswordConfirmation(password, confirmPassword);
+
+    const duplicateNicknameError = await checkDuplicateNickname(nickname);
+    if (duplicateNicknameError) {
+      newErrors.nickname = duplicateNicknameError;
+    }
+
+    setErrors(newErrors);
+
+    if (Object.values(newErrors).every((error) => error === '')) {
+      console.log('회원가입 성공:', { nickname, email, password });
+      // TODO: 회원가입 API 호출 및 성공 시 처리
+      navigate('/login');
+    }
   };
 
   const handleLogin = () => {
-    console.log('로그인 페이지로 이동');
     navigate('/login');
   };
 
@@ -45,6 +68,7 @@ const SignupForm = () => {
               onChange={(e) => setNickname(e.target.value)}
               name="nickname"
               required
+              error={errors.nickname}
             />
             <Input
               type="email"
@@ -53,6 +77,7 @@ const SignupForm = () => {
               onChange={(e) => setEmail(e.target.value)}
               name="email"
               required
+              error={errors.email}
             />
             <Input
               type="password"
@@ -61,6 +86,7 @@ const SignupForm = () => {
               onChange={(e) => setPassword(e.target.value)}
               name="password"
               required
+              error={errors.password}
             />
             <Input
               type="password"
@@ -69,6 +95,7 @@ const SignupForm = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               name="confirmPassword"
               required
+              error={errors.confirmPassword}
             />
             <BigButton type="submit">회원가입</BigButton>
           </form>
