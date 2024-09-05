@@ -5,6 +5,10 @@ export default {
     fontFamily: {
       ddin: ['D-DIN', 'sans-serif'],
     },
+    screens: {
+      xs: '400px',
+    },
+
     colors: {
       transparent: 'transparent',
       current: 'currentColor',

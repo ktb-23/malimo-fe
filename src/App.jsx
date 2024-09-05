@@ -1,23 +1,15 @@
 import './index.css';
 import './App.css';
 import React from 'react';
-import Calendar from './component/Calendar';
-import Advice from './component/Advice';
-import InputDiary from './component/InputDiary';
-import Graph from './component/Graph';
-import Summary from './component/Summary';
-import Search from './component/Search';
+import { BrowserRouter as Router } from 'react-router-dom';
+
+import AppRouter from './routes/router';
 
 function App() {
   return (
-    <div>
-      <Calendar />
-      <Advice />
-      <InputDiary />
-      <Graph />
-      <Summary />
-      <Search />
-    </div>
+    <Router>
+      <AppRouter />
+    </Router>
   );
 }
 
