@@ -16,37 +16,53 @@ const MainForm = () => {
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 grid grid-cols-2 grid-rows-[1fr_1fr_1fr_1fr]">
-        {/* Search: 2,3 */}
-        <div className="col-span-2 flex items-center justify-center">
-          <div className="w-full max-w-md">
+      <div className="flex-1 grid grid-cols-2 grid-rows-[auto_1fr_1fr] gap-4 px-8">
+        {/* Search: spans both columns */}
+        <div className="col-span-2 flex items-center justify-center py-4">
+          <div className="w-full max-w-2xl">
             <Search />
           </div>
         </div>
 
-        {/* Calendar: 5 */}
-        <div className="col-span-1">
-          <Calendar />
+        {/* Left column: Calendar and InputDiary */}
+        <div className="flex flex-col gap-4">
+          {/* Calendar */}
+          <div className="flex justify-end items-start">
+            <div className="w-full max-w-md">
+              <Calendar />
+            </div>
+          </div>
+
+          {/* InputDiary */}
+          <div className="flex justify-end items-start">
+            <div className="w-full max-w-md">
+              <InputDiary />
+            </div>
+          </div>
+
+          {/* Graph */}
+          <div className="flex justify-end items-start">
+            <div className="w-full max-w-md">
+              <Graph />
+            </div>
+          </div>
         </div>
 
-        {/* Summary: 6 */}
-        <div className="col-span-1">
-          <Summary />
-        </div>
+        {/* Right column: Summary and Advice */}
+        <div className="flex flex-col gap-4">
+          {/* Summary */}
+          <div className="flex justify-start items-start">
+            <div className="w-full max-w-md">
+              <Summary />
+            </div>
+          </div>
 
-        {/* InputDiary: 8 */}
-        <div className="col-span-1">
-          <InputDiary />
-        </div>
-
-        {/* Advice: 9,12 */}
-        <div className="row-span-2 col-span-1">
-          <Advice />
-        </div>
-
-        {/* Graph: 11 */}
-        <div className="col-span-1">
-          <Graph />
+          {/* Advice */}
+          <div className="flex justify-start items-start">
+            <div className="w-full max-w-md">
+              <Advice />
+            </div>
+          </div>
         </div>
       </div>
     </div>

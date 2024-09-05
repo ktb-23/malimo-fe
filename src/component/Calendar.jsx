@@ -26,15 +26,23 @@ const Calendar = () => {
     for (let i = 1; i <= totalDays; i++) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
       const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
+      const dayOfWeek = date.getDay();
+
+      let dayColor = 'text-gray-300';
+      if (dayOfWeek === 0) dayColor = 'text-red';
+      if (dayOfWeek === 6) dayColor = 'text-blue';
+
       days.push(
         <div
           key={`day-${i}`}
           onClick={() => setSelectedDate(date)}
           className={`h-8 w-8 flex items-center justify-center text-sm cursor-pointer relative
-            ${isSelected ? 'text-blue font-semibold' : 'hover:bg-gray-100'}`}
+            ${isSelected ? 'font-semibold' : 'hover:bg-gray-100'} ${dayColor}`}
         >
           {i}
-          {isSelected && <div className="absolute inset-0 border-2 border-blue rounded-full pointer-events-none"></div>}
+          {isSelected && (
+            <div className="absolute inset-0 border-2 border-blue-500 rounded-full pointer-events-none"></div>
+          )}
         </div>,
       );
     }
@@ -76,15 +84,17 @@ const Calendar = () => {
         </button>
       </div>
       <div className="grid grid-cols-7 gap-1 mb-2">
-        {weekDays.map((day) => (
-          <div key={day} className="text-center text-sm font-medium text-black">
+        {weekDays.map((day, index) => (
+          <div
+            key={day}
+            className={`text-center text-sm font-medium 
+              ${index === 0 ? 'text-red-500' : index === 6 ? 'text-blue-500' : 'text-black'}`}
+          >
             {day}
           </div>
         ))}
       </div>
-      <div className="flex flex-col justify-between h-[calc(100%-3rem)] text-gray-300 text-base">
-        {renderCalendar()}
-      </div>
+      <div className="flex flex-col justify-between h-[calc(100%-3rem)] text-base">{renderCalendar()}</div>
     </div>
   );
 };

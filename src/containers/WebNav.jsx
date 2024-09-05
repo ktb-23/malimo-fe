@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbttn from '../component/Navbttn';
 import HomeIcon from '../image/Homeicon.svg';
 import ListIcon from '../image/Listicon.svg';
@@ -11,6 +12,18 @@ import Logo from '../image/Logo.svg';
 
 const WebNav = () => {
   const [activeButton, setActiveButton] = useState('home');
+  const navigate = useNavigate();
+
+  const handleNavClick = (id) => {
+    setActiveButton(id);
+    if (id === 'mypage') {
+      navigate('/myform');
+    }
+    if (id === 'home') {
+      navigate('/main');
+    }
+    // 다른 버튼들에 대한 네비게이션 로직도 여기에 추가할 수 있습니다.
+  };
 
   const navButtons = [
     { id: 'home', icon: <img src={HomeIcon} alt="Home" />, text: '메인페이지' },
@@ -35,7 +48,7 @@ const WebNav = () => {
             isActive={activeButton === 'alert'}
             icon={<img src={Bellicon} alt="Bell" />}
             text={'알림'}
-            onClick={() => setActiveButton('alert')}
+            onClick={() => handleNavClick('alert')}
           />
         </div>
       </div>
@@ -46,7 +59,7 @@ const WebNav = () => {
             isActive={activeButton === button.id}
             icon={button.icon}
             text={button.text}
-            onClick={() => setActiveButton(button.id)}
+            onClick={() => handleNavClick(button.id)}
           />
         ))}
       </div>
