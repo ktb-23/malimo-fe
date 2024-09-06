@@ -40,7 +40,7 @@ const Graph = () => {
 
   // Determine bar color based on whether the day is today
   const getBarColor = (index) => {
-    return index === data.length - 1 ? 'bg-blue' : 'bg-gray-300';
+    return index === data.length - 1 ? 'bg-blue' : 'bg-skyblue';
   };
 
   // Format score to show one decimal place only if necessary
@@ -62,7 +62,7 @@ const Graph = () => {
             {data.map((item, index) => (
               <div key={index} className="flex flex-col items-center flex-1">
                 <span className="text-xs mb-1 text-black font-bold">{formatScore(item.score)}</span>
-                <div className="h-24 w-full bg-gray-100 rounded-t-lg relative overflow-hidden">
+                <div className="h-24 w-full bg-white rounded-t-lg relative overflow-hidden">
                   <div
                     className={`absolute bottom-0 w-full rounded-t-lg transition-all duration-1000 ease-out ${
                       animate ? '' : 'h-0'

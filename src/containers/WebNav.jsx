@@ -51,7 +51,7 @@ const WebNav = () => {
       </div>
       <div className="my-2 sm:my-3 md:my-4 px-2 sm:px-3 md:px-4 py-1 sm:py-2 border-b border-gray-200">
         <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-[#4E46DD]">{storedNickname}님,</h2>
-        <p className="mb-2 sm:mb-3 text-sm sm:text-base md:text-lg text-gray-600">오늘도 고생하셨어요!</p>
+        <p className="mb-2 sm:mb-3 text-sm sm:text-base md:text-lg text-gray-300">오늘도 고생하셨어요!</p>
         <div className="text-sm mt-4 sm:mt-6 md:mt-8 ">
           <Navbttn
             key="alert"

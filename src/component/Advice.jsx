@@ -9,8 +9,8 @@ const Advice = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 max-w-md mx-auto font-noto-sans-kr">
-      <h2 className="text-2xl font-bold text-blue mb-4 text-left">{adviceData.title}</h2>
+    <div className="bg-white rounded-lg shadow-[0_0_10px_rgba(0,0,0,0.1)] p-6 max-w-md mx-auto font-noto-sans-kr">
+      <h2 className="text-2xl font-bold text-black mb-4 text-left">{adviceData.title}</h2>
       <p className="text-black mb-6 text-center">{adviceData.content}</p>
       <div className="text-left">
         <h3 className="text-lg font-semibold text-gray-300 mb-2">{adviceData.recommendationTitle}</h3>

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 const Summary = ({ date, emotion, content }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 max-w-md mx-auto font-noto-sans-kr">
+    <div className="bg-white rounded-lg shadow-[0_0_10px_rgba(0,0,0,0.1)] p-6 max-w-md mx-auto font-noto-sans-kr">
       <div className="text-left mb-4">
         <h2 className="text-lg font-semibold text-gray-600">어제, {date}의 기억</h2>
       </div>

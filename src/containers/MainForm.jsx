@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import WebNav from './WebNav';
 import Calendar from '../component/Calendar';
 import InputDiary from '../component/InputDiary';
@@ -6,8 +6,32 @@ import Search from '../component/Search';
 import Summary from '../component/Summary';
 import Advice from '../component/Advice';
 import Graph from '../component/Graph';
+import { writeDiary } from '../api/writeDiary';
 
 const MainForm = () => {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [diaryContents, setDiaryContents] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
+
+  const handleDiaryChange = (contents) => {
+    setDiaryContents(contents);
+  };
+
+  const handleDiarySubmit = async () => {
+    const formattedDate = selectedDate.toISOString().split('T')[0].replace(/-/g, '.');
+    const result = await writeDiary(formattedDate, diaryContents);
+    if (result.success) {
+      setMessage('일기가 성공적으로 저장되었습니다.');
+      setDiaryContents(''); // 일기 내용 초기화
+    } else {
+      setMessage(result.error);
+    }
+  };
+
   return (
     <div className="flex h-screen w-screen">
       {/* WebNav */}
@@ -29,14 +53,15 @@ const MainForm = () => {
           {/* Calendar */}
           <div className="flex justify-end items-start">
             <div className="w-full max-w-md">
-              <Calendar />
+              <Calendar onDateChange={handleDateChange} />
             </div>
           </div>
 
           {/* InputDiary */}
           <div className="flex justify-end items-start">
             <div className="w-full max-w-md">
-              <InputDiary />
+              <InputDiary contents={diaryContents} onContentsChange={handleDiaryChange} onSubmit={handleDiarySubmit} />
+              {message && <p className="text-sm text-green mt-2">{message}</p>}
             </div>
           </div>
 
