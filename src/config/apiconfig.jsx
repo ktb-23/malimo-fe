@@ -1,9 +1,7 @@
 import axios from 'axios';
+import {ACCESS_TOKEN_KEY,  REFRESH_TOKEN_KEY, USER_ID_KEY} from '../constant/storageKey';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
-const ACCESS_TOKEN_KEY = 'accesstoken';
-const REFRESH_TOKEN_KEY = 'refreshtoken';
-const EMAIL_KEY = 'user_id';
 
 const getAuthorizationHeader = () => {
   const token = localStorage.getItem(ACCESS_TOKEN_KEY);
@@ -44,7 +42,7 @@ const processQueue = (error, token = null) => {
 
 async function postRefreshToken() {
   const requestData = {
-    email: getLocalStorageItem(EMAIL_KEY),
+    user_id: getLocalStorageItem(USER_ID_KEY),
     refreshToken: getLocalStorageItem(REFRESH_TOKEN_KEY),
   };
 

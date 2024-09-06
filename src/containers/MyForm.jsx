@@ -7,6 +7,7 @@ import { deleteAccount } from '../api/delete';
 import { changeNickname } from '../api/changeNickname';
 import { validateNickname, validatePassword, validatePasswordConfirmation } from '../config/validation';
 import { useCheckDuplicate } from '../hooks/useCheckDuplicate';
+import { NICKNAME_KEY} from '../constant/storageKey';
 
 const MyForm = () => {
   const [nickname, setNickname] = useState('');
@@ -23,7 +24,7 @@ const MyForm = () => {
   const { duplicateErrors, checkDuplicateNickname } = useCheckDuplicate();
 
   useEffect(() => {
-    const localNickname = localStorage.getItem('nickname');
+    const localNickname = localStorage.getItem(NICKNAME_KEY);
     if (localNickname) {
       setStoredNickname(localNickname);
       setNickname(localNickname);
@@ -79,7 +80,7 @@ const MyForm = () => {
         setMessage('닉네임이 성공적으로 변경되었습니다.');
         setMessageType('success');
         setErrors((prevErrors) => ({ ...prevErrors, nickname: '' }));
-        localStorage.setItem('nickname', nickname);
+        localStorage.setItem(NICKNAME_KEY, nickname);
         setStoredNickname(nickname);
       } else {
         setMessage(result.error || '닉네임 변경에 실패했습니다.');

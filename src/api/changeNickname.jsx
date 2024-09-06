@@ -1,10 +1,12 @@
 // src/api/ChangeNickname.jsx
 
 import api from '../config/apiconfig';
+import {ACCESS_TOKEN_KEY} from '../constant/storageKey';
+
 
 export const changeNickname = async (newNickname) => {
   try {
-    const accessToken = localStorage.getItem('accesstoken');
+    const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
 
     const response = await api.put(
       '/api/v1/auth/nickname',

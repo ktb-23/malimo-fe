@@ -9,6 +9,7 @@ import MyIcon from '../image/Myicon.svg';
 import SettingIcon from '../image/Settingicon.svg';
 import Bellicon from '../image/Bellicon.svg';
 import Logo from '../image/Logo.svg';
+import {ACCESS_TOKEN_KEY, NICKNAME_KEY} from '../constant/storageKey';
 
 const WebNav = () => {
   const [activeButton, setActiveButton] = useState('home');
@@ -17,8 +18,8 @@ const WebNav = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const localNickname = localStorage.getItem('nickname');
-    const accessToken = localStorage.getItem('accesstoken'); // 로그인 상태를 확인하기 위해 토큰 검사
+    const localNickname = localStorage.getItem(NICKNAME_KEY);
+    const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY); // 로그인 상태를 확인하기 위해 토큰 검사
     if (localNickname && accessToken) {
       setNickname(localNickname);
       setIsLoggedIn(true);
