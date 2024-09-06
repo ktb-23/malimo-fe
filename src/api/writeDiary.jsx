@@ -20,9 +20,20 @@ export const writeDiary = async (date, contents) => {
     };
   } catch (error) {
     console.error('일기 작성 중 오류 발생:', error);
+    let errorMessage = '일기 작성 중 오류가 발생했습니다.';
+    if (error.response) {
+      console.error('Error response:', error.response);
+      errorMessage = `서버 오류: ${error.response.status} ${error.response.statusText}`;
+    } else if (error.request) {
+      console.error('Error request:', error.request);
+      errorMessage = '서버에 연결할 수 없습니다.';
+    } else {
+      console.error('Error message:', error.message);
+      errorMessage = `오류: ${error.message}`;
+    }
     return {
       success: false,
-      error: error.response ? error.response.data.message : '일기 작성 중 오류가 발생했습니다.',
+      error: errorMessage,
     };
   }
 };
