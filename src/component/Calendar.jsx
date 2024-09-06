@@ -99,7 +99,7 @@ const Calendar = ({loading, error, monthMetaData, onDateChange, selectedDate }) 
 
 Calendar.propTypes = {
   loading: PropTypes.bool.isRequired,
-  error: PropTypes.string.isRequired,
+  error: PropTypes.string,
   monthMetaData: PropTypes.object.isRequired,
   onDateChange: PropTypes.func.isRequired,
   selectedDate: PropTypes.string,

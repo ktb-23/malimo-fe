@@ -8,12 +8,19 @@ import Advice from '../component/Advice';
 import Graph from '../component/Graph';
 import dayjs from '../util/dayjs';
 import { getDiaryMothMetaData } from '../api/getDiaryMothMetaData';
+import { searchAdvice } from '../api/searchAdvice';
 
 const MainForm = () => {
   const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY.MM.DD'));
   const [monthMetaData, setMonthMetaData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [analicticData, setAnalicticData] = useState({
+    emotion_analysis: null,
+    summary: null,
+    advice: null,
+    total_scores: null,
+  });
 
   const fetchMonthData = async (date) => {
     const year = dayjs(date).year();
@@ -22,9 +29,8 @@ const MainForm = () => {
     setError(null);
 
     try {
-      // 한 달의 모든 날짜에 대해 일기 데이터를 가져옵니다.
-      const {data} = await getDiaryMothMetaData(year, month + 1);
-      data.dates.forEach(item => setMonthMetaData((prevData) => ({...prevData, [item]: true})));
+      const { data } = await getDiaryMothMetaData(year, month + 1);
+      data.dates.forEach((item) => setMonthMetaData((prevData) => ({ ...prevData, [item]: true })));
     } catch (err) {
       console.error('Failed to fetch month data:', err);
       setError('월간 데이터를 가져오는데 실패했습니다.');
@@ -33,9 +39,20 @@ const MainForm = () => {
     }
   };
 
+  const fetchAdvice = async () => {
+    const result = await searchAdvice(dayjs().format('YYYY.MM.DD'));
+    if (result.success) {
+      setAnalicticData(result.data);
+    }
+  };
+
   useEffect(() => {
-    fetchMonthData(selectedDate)
+    fetchMonthData(selectedDate);
   }, [selectedDate]);
+
+  useEffect(() => {
+    fetchAdvice();
+  }, []);
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -62,7 +79,13 @@ const MainForm = () => {
           {/* Calendar */}
           <div className="flex justify-end items-start">
             <div className="w-full max-w-md">
-              <Calendar loading={loading} error={error} monthMetaData={monthMetaData} onDateChange={handleDateChange} selectedDate={selectedDate} />
+              <Calendar
+                loading={loading}
+                error={error}
+                monthMetaData={monthMetaData}
+                onDateChange={handleDateChange}
+                selectedDate={selectedDate}
+              />
             </div>
           </div>
 
@@ -75,9 +98,7 @@ const MainForm = () => {
 
           {/* Graph */}
           <div className="flex justify-end items-start">
-            <div className="w-full max-w-md">
-              <Graph />
-            </div>
+            <div className="w-full max-w-md">{<Graph analicticData={analicticData} />}</div>
           </div>
         </div>
 
@@ -86,15 +107,13 @@ const MainForm = () => {
           {/* Summary */}
           <div className="flex justify-start items-start">
             <div className="w-full max-w-md">
-              {/* <Summary /> */}
+              <Summary analicticData={analicticData} selectedDate={selectedDate} />
             </div>
           </div>
 
           {/* Advice */}
           <div className="flex justify-start items-start">
-            <div className="w-full max-w-md">
-              {/* <Advice /> */}
-            </div>
+            <div className="w-full max-w-md">{<Advice analicticData={analicticData} />}</div>
           </div>
         </div>
       </div>
