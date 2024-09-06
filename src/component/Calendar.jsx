@@ -2,36 +2,44 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { searchDiary } from '../api/searchDiary';
 
-const Calendar = ({ diaryData: propDiaryData, onDateChange, initialDate }) => {
+const Calendar = ({ onDateChange, initialDate }) => {
   const [currentDate, setCurrentDate] = useState(initialDate || new Date());
   const [selectedDate, setSelectedDate] = useState(initialDate || new Date());
   const [diaryData, setDiaryData] = useState({});
-
-  // 샘플 데이터 생성
-  const generateSampleData = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = (today.getMonth() + 1).toString().padStart(2, '0');
-
-    return {
-      [`${year}-${month}-05`]: { content: '오늘은 날씨가 좋았습니다.' },
-      [`${year}-${month}-10`]: { content: '친구와 저녁을 먹었습니다.' },
-      [`${year}-${month}-15`]: { content: '새로운 프로젝트를 시작했습니다.' },
-      [`${year}-${month}-20`]: { content: '운동을 열심히 했습니다.' },
-      [`${year}-${month}-25`]: { content: '좋은 책을 읽었습니다.' },
-    };
-  };
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const isPropDiaryDataEmpty =
-      !propDiaryData || typeof propDiaryData !== 'object' || Object.keys(propDiaryData).length === 0;
+    fetchMonthData(currentDate);
+  }, [currentDate]);
 
-    if (import.meta.env.MODE === 'development' && isPropDiaryDataEmpty) {
-      setDiaryData(generateSampleData());
-    } else {
-      setDiaryData(propDiaryData || {});
+  const fetchMonthData = async (date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    setLoading(true);
+    setError(null);
+
+    try {
+      // 한 달의 모든 날짜에 대해 일기 데이터를 가져옵니다.
+      const monthData = {};
+      const daysInMonth = new Date(year, date.getMonth() + 1, 0).getDate();
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateString = `${year}-${month}-${day.toString().padStart(2, '0')}`;
+        const result = await searchDiary(dateString);
+        if (result.success) {
+          monthData[dateString] = result.data;
+        }
+      }
+
+      setDiaryData(monthData);
+    } catch (err) {
+      console.error('Failed to fetch month data:', err);
+      setError('월간 데이터를 가져오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
     }
-  }, [propDiaryData]);
+  };
 
   const daysInMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -43,24 +51,28 @@ const Calendar = ({ diaryData: propDiaryData, onDateChange, initialDate }) => {
 
   const handleDateSelect = async (date) => {
     setSelectedDate(date);
+    setLoading(true);
+    setError(null);
 
-    // 선택한 날짜의 일기 조회
     const formattedDate = date.toISOString().split('T')[0];
-    const result = await searchDiary(formattedDate);
-
-    if (result.success) {
-      // 일기 데이터를 상위 컴포넌트로 전달
-      onDateChange(date, result.data);
-
-      // 로컬 상태 업데이트 (필요한 경우)
-      setDiaryData((prevData) => ({
-        ...prevData,
-        [formattedDate]: result.data,
-      }));
-    } else {
-      console.error(result.error);
-      // 에러 처리 (예: 사용자에게 알림)
+    try {
+      const result = await searchDiary(formattedDate);
+      if (result.success) {
+        onDateChange(date, result.data);
+        setDiaryData((prevData) => ({
+          ...prevData,
+          [formattedDate]: result.data,
+        }));
+      } else {
+        setError(result.error);
+        onDateChange(date, null);
+      }
+    } catch (err) {
+      console.error('Failed to fetch diary:', err);
+      setError('일기를 가져오는데 실패했습니다.');
       onDateChange(date, null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -69,7 +81,7 @@ const Calendar = ({ diaryData: propDiaryData, onDateChange, initialDate }) => {
     const firstDay = firstDayOfMonth(currentDate);
     const days = [];
 
-    // Add weekday headers
+    // Weekday headers
     const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
     weekDays.forEach((day, index) => {
       days.push(
@@ -83,14 +95,15 @@ const Calendar = ({ diaryData: propDiaryData, onDateChange, initialDate }) => {
       );
     });
 
-    // Add empty cells for days before the first day of the month
+    // Empty cells for days before the first day of the month
     for (let i = 0; i < firstDay; i++) {
       days.push(<div key={`empty-${i}`}></div>);
     }
-    // Add cells for each day of the month
+
+    // Cells for each day of the month
     for (let i = 1; i <= totalDays; i++) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
-      const dateString = date.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+      const dateString = date.toISOString().split('T')[0];
       const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
       const dayOfWeek = date.getDay();
       const hasDiaryEntry = diaryData[dateString];
@@ -98,7 +111,7 @@ const Calendar = ({ diaryData: propDiaryData, onDateChange, initialDate }) => {
       let dayColor = '';
       if (dayOfWeek === 0) dayColor = 'text-red';
       else if (dayOfWeek === 6) dayColor = 'text-blue';
-      else dayColor = 'text-gray-300';
+      else dayColor = 'text-gray-700';
 
       days.push(
         <div
@@ -142,19 +155,19 @@ const Calendar = ({ diaryData: propDiaryData, onDateChange, initialDate }) => {
           &gt;
         </button>
       </div>
+      {loading && <div className="text-center">로딩 중...</div>}
+      {error && <div className="text-red-500 text-center">{error}</div>}
       <div className="px-4 pb-4 h-[calc(100%-4rem)]">{renderCalendar()}</div>
     </div>
   );
 };
 
 Calendar.propTypes = {
-  diaryData: PropTypes.object,
   onDateChange: PropTypes.func.isRequired,
   initialDate: PropTypes.instanceOf(Date),
 };
 
 Calendar.defaultProps = {
-  diaryData: {},
   initialDate: new Date(),
 };
 

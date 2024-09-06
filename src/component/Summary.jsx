@@ -1,7 +1,49 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from 'react';
+import { searchAdvice } from '../api/searchAdvice';
 
-const Summary = ({ date, emotion, content }) => {
+const Summary = () => {
+  const [summaryData, setSummaryData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      setLoading(true);
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const formattedDate = yesterday.toISOString().split('T')[0]; // 'YYYY-MM-DD' 형식
+
+      try {
+        const result = await searchAdvice(formattedDate);
+        if (result.success) {
+          setSummaryData(result.data);
+        } else {
+          setError(result.error);
+        }
+      } catch (err) {
+        setError('데이터를 불러오는 중 오류가 발생했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSummary();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center">로딩 중...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500">{error}</div>;
+  }
+
+  if (!summaryData) {
+    return <div className="text-center">데이터가 없습니다.</div>;
+  }
+
+  const { date, emotion, content } = summaryData;
+
   return (
     <div className="bg-white rounded-lg shadow-[0_0_10px_rgba(0,0,0,0.1)] p-6 max-w-md mx-auto font-noto-sans-kr">
       <div className="text-left mb-4">
@@ -15,26 +57,4 @@ const Summary = ({ date, emotion, content }) => {
   );
 };
 
-Summary.propTypes = {
-  date: PropTypes.string.isRequired,
-  emotion: PropTypes.string.isRequired,
-  content: PropTypes.string.isRequired,
-};
-
-Summary.defaultProps = {
-  date: '날짜 정보 없음',
-  emotion: '감정 정보 없음',
-  content: '내용 없음',
-};
-
-const SummaryExample = () => {
-  const exampleData = {
-    date: '9월 2일 월요일',
-    emotion: '내가 느낀 감정',
-    content: '할 일이 너무 많았고,\n낯선 사람들을 많이 마주해 정신 없었지만,\n팀원들을 만나 반갑고 신났어요.',
-  };
-
-  return <Summary {...exampleData} />;
-};
-
-export default SummaryExample;
+export default Summary;
