@@ -12,21 +12,15 @@ const InputDiary = ({ initialContents = '', selectedDate }) => {
 
   useEffect(() => {
     const fetchDiary = async () => {
-      if (selectedDate) {
-        const formattedDate = selectedDate.toISOString().split('T')[0];
-        const result = await searchDiary(formattedDate);
-        if (result.success) {
-          setDiaryEntry(result.data.contents || '');
-          setDiaryId(result.data.diary_id)
-          setIsEditMode(false);
-        } else {
-          setDiaryEntry('');
-          setDiaryId(null)
-          setIsEditMode(true);
-        }
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+      const result = await searchDiary(formattedDate);
+      if (result.success) {
+        setDiaryEntry(result.data.contents || '');
+        setDiaryId(result.data.diary_id)
+        setIsEditMode(false);
       } else {
-        // selectedDate가 없을 때의 처리
         setDiaryEntry('');
+        setDiaryId(null)
         setIsEditMode(true);
       }
     };
@@ -46,7 +40,7 @@ const InputDiary = ({ initialContents = '', selectedDate }) => {
       // 수정 모드에서 저장
       const result = await changeDiary(diaryId, diaryEntry);
       if (result.success) {
-        alert(result.message.message);
+        alert(result.message);
         setIsEditMode(false);
       } else {
         alert('일기 수정에 실패했습니다: ' + result.message);
