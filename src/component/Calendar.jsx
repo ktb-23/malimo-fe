@@ -17,9 +17,23 @@ const Calendar = () => {
     const firstDay = firstDayOfMonth(currentDate);
     const days = [];
 
+    // Add weekday headers
+    const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+    weekDays.forEach((day, index) => {
+      days.push(
+        <div
+          key={`weekday-${index}`}
+          className={`flex items-center justify-center text-sm font-medium
+            ${index === 0 ? 'text-red-500' : index === 6 ? 'text-blue' : 'text-black'}`}
+        >
+          {day}
+        </div>,
+      );
+    });
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDay; i++) {
-      days.push(<div key={`empty-${i}`} className="h-8"></div>);
+      days.push(<div key={`empty-${i}`}></div>);
     }
 
     // Add cells for each day of the month
@@ -36,37 +50,28 @@ const Calendar = () => {
         <div
           key={`day-${i}`}
           onClick={() => setSelectedDate(date)}
-          className={`h-8 w-8 flex items-center justify-center text-sm cursor-pointer relative
-            ${isSelected ? 'font-semibold' : 'hover:bg-gray-100'} ${dayColor}`}
+          className={`flex items-center justify-center text-sm cursor-pointer relative
+            ${isSelected ? 'font-semibold' : 'hover:bg-gray-100 active:bg-gray-200'} 
+            ${dayColor} transition-colors duration-200`}
         >
-          {i}
-          {isSelected && (
-            <div className="absolute inset-0 border-2 border-blue-500 rounded-full pointer-events-none"></div>
-          )}
+          <div className="w-8 h-8 flex items-center justify-center rounded-full">
+            {i}
+            {isSelected && (
+              <div className="absolute inset-2 border-2 border-blue rounded-full pointer-events-none"></div>
+            )}
+          </div>
         </div>,
       );
     }
 
-    // Group days into weeks
-    const weeks = [];
-    for (let i = 0; i < days.length; i += 7) {
-      weeks.push(
-        <div key={`week-${i / 7}`} className="grid grid-cols-7 gap-1 mb-2.5">
-          {days.slice(i, i + 7)}
-        </div>,
-      );
-    }
-
-    return weeks;
+    return <div className="grid grid-cols-7 gap-1 h-full">{days}</div>;
   };
 
   const monthNames = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
 
-  const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
-
   return (
     <div className="bg-white rounded-lg aspect-square max-w-sm mx-auto font-ddin">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4 p-4">
         <button
           onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}
           className="text-gray-300 hover:text-black"
@@ -83,18 +88,7 @@ const Calendar = () => {
           &gt;
         </button>
       </div>
-      <div className="grid grid-cols-7 gap-1 mb-2">
-        {weekDays.map((day, index) => (
-          <div
-            key={day}
-            className={`text-center text-sm font-medium 
-              ${index === 0 ? 'text-red-500' : index === 6 ? 'text-blue-500' : 'text-black'}`}
-          >
-            {day}
-          </div>
-        ))}
-      </div>
-      <div className="flex flex-col justify-between h-[calc(100%-3rem)] text-base">{renderCalendar()}</div>
+      <div className="px-4 pb-4 h-[calc(100%-4rem)]">{renderCalendar()}</div>
     </div>
   );
 };
