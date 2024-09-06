@@ -4,10 +4,11 @@ import { searchDiary } from '../api/searchDiary';
 import { writeDiary } from '../api/writeDiary';
 import PropTypes from 'prop-types';
 
-const InputDiary = ({ diaryId, initialContents = '', selectedDate }) => {
+//TODO: 새롭게 일기 작성한 경우 월별 일기 목록을 다시 불러오는 함수 필요
+const InputDiary = ({ initialContents = '', selectedDate }) => {
   const [diaryEntry, setDiaryEntry] = useState(initialContents);
-  const [isEditing, setIsEditing] = useState(!initialContents);
-  const [isSaved, setIsSaved] = useState(!!initialContents);
+  const [diaryId, setDiaryId] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
     const fetchDiary = async () => {
@@ -15,19 +16,18 @@ const InputDiary = ({ diaryId, initialContents = '', selectedDate }) => {
         const formattedDate = selectedDate.toISOString().split('T')[0];
         const result = await searchDiary(formattedDate);
         if (result.success) {
-          setDiaryEntry(result.data.content || '');
-          setIsEditing(false);
-          setIsSaved(true);
+          setDiaryEntry(result.data.contents || '');
+          setDiaryId(result.data.diary_id)
+          setIsEditMode(false);
         } else {
           setDiaryEntry('');
-          setIsEditing(true);
-          setIsSaved(false);
+          setDiaryId(null)
+          setIsEditMode(true);
         }
       } else {
         // selectedDate가 없을 때의 처리
         setDiaryEntry('');
-        setIsEditing(true);
-        setIsSaved(false);
+        setIsEditMode(true);
       }
     };
 
@@ -39,32 +39,30 @@ const InputDiary = ({ diaryId, initialContents = '', selectedDate }) => {
   };
 
   const handleSave = async () => {
-    if (isEditing) {
-      if (isSaved) {
-        // 수정 모드에서 저장
-        const result = await changeDiary(diaryId, diaryEntry);
-        if (result.success) {
-          alert(result.message);
-          setIsEditing(false);
-        } else {
-          alert('일기 수정에 실패했습니다: ' + result.message);
-        }
+    if (diaryEntry === initialContents) {
+      return
+    }
+    if (diaryId) {
+      // 수정 모드에서 저장
+      const result = await changeDiary(diaryId, diaryEntry);
+      if (result.success) {
+        alert(result.message.message);
+        setIsEditMode(false);
       } else {
-        // 새로운 일기 저장
-        const currentDate = selectedDate || new Date();
-        const formattedDate = currentDate.toISOString().split('T')[0];
-        const result = await writeDiary(formattedDate, diaryEntry);
-        if (result.success) {
-          alert(result.message);
-          setIsEditing(false);
-          setIsSaved(true);
-        } else {
-          alert('일기 저장에 실패했습니다: ' + result.error);
-        }
+        alert('일기 수정에 실패했습니다: ' + result.message);
       }
     } else {
-      // 수정 모드로 전환
-      setIsEditing(true);
+      // 새로운 일기 저장
+      const currentDate = selectedDate || new Date();
+      const formattedDate = currentDate.toISOString().split('T')[0];
+      console.log(formattedDate)
+      const result = await writeDiary(formattedDate, diaryEntry);
+      if (result.success) {
+        alert(result.message.message);
+        setIsEditMode(false);
+      } else {
+        alert('일기 저장에 실패했습니다: ' + result.error);
+      }
     }
   };
 
@@ -84,13 +82,13 @@ const InputDiary = ({ diaryId, initialContents = '', selectedDate }) => {
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-bold text-black">{formatDate(selectedDate || new Date())} - 나의 하루 기억하기</h3>
         <button
-          onClick={handleSave}
-          className={"text-white font-bold py-2 px-4 rounded hover:bg-opacity-90 transition duration-300" + (diaryEntry === initialContents ? ' bg-skyblue' : ' bg-blue')}
+          onClick={isEditMode ? handleSave : () => setIsEditMode(true)}
+          className={"text-white font-bold py-2 px-4 rounded hover:bg-opacity-90 transition duration-300" + (!isEditMode || diaryEntry !== initialContents ? ' bg-blue': ' bg-skyblue' )}
         >
-          {isEditing ? '저장' : '수정'}
+          {isEditMode ? '저장' : '수정'}
         </button>
       </div>
-      {isEditing ? (
+      {isEditMode ? (
         <textarea
           value={diaryEntry}
           onChange={handleInputChange}
