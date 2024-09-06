@@ -14,7 +14,7 @@ const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-    Authorization: getAuthorizationHeader(), //헤더설정 일관되도록 수정
+    Authorization: getAuthorizationHeader(),
   },
 });
 

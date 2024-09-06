@@ -1,5 +1,3 @@
-// src/components/SignupForm.jsx
-
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useValidation } from '../hooks/useValidation';
@@ -81,6 +79,7 @@ const SignupForm = () => {
           </h2>
           <form onSubmit={handleSignup}>
             <Input
+              name="nickname"
               type="text"
               placeholder="닉네임"
               value={nickname}
@@ -88,6 +87,7 @@ const SignupForm = () => {
               required
             />
             <Input
+              name="email"
               type="email"
               placeholder="이메일"
               value={email}
@@ -95,6 +95,7 @@ const SignupForm = () => {
               required
             />
             <Input
+              name="password"
               type="password"
               placeholder="비밀번호"
               value={password}
@@ -102,6 +103,7 @@ const SignupForm = () => {
               required
             />
             <Input
+              name="confirmPassword"
               type="password"
               placeholder="비밀번호 확인"
               value={confirmPassword}
@@ -109,7 +111,9 @@ const SignupForm = () => {
               required
             />
             {errorMessage && <div className="text-red text-sm mb-4">{errorMessage}</div>}
-            <BigButton type="submit">회원가입</BigButton>
+            <BigButton type="submit" onClick={handleSignup}>
+              회원가입
+            </BigButton>
           </form>
         </div>
       </div>
