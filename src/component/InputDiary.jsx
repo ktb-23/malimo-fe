@@ -5,7 +5,7 @@ import { writeDiary } from '../api/writeDiary';
 import PropTypes from 'prop-types';
 import dayjs from '../util/dayjs';
 
-const InputDiary = ({ initialContents = '', selectedDate, fetchMonthData }) => {
+const InputDiary = ({ initialContents = '', selectedDate, fetchMonthData, fetchAdvice }) => {
   const [diaryEntry, setDiaryEntry] = useState(initialContents);
   const [diaryId, setDiaryId] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -15,11 +15,11 @@ const InputDiary = ({ initialContents = '', selectedDate, fetchMonthData }) => {
       const result = await searchDiary(selectedDate);
       if (result.success) {
         setDiaryEntry(result.data.contents);
-        setDiaryId(result.data.diary_id)
+        setDiaryId(result.data.diary_id);
         setIsEditMode(false);
       } else {
         setDiaryEntry('');
-        setDiaryId(null)
+        setDiaryId(null);
         setIsEditMode(true);
       }
     };
@@ -33,7 +33,7 @@ const InputDiary = ({ initialContents = '', selectedDate, fetchMonthData }) => {
 
   const handleSave = async () => {
     if (diaryEntry === initialContents) {
-      return
+      return;
     }
     if (diaryId) {
       // 수정 모드에서 저장
@@ -42,6 +42,7 @@ const InputDiary = ({ initialContents = '', selectedDate, fetchMonthData }) => {
         alert(result.message);
         fetchMonthData(selectedDate);
         setIsEditMode(false);
+        fetchAdvice();
       } else {
         alert('일기 수정에 실패했습니다: ' + result.message);
       }
@@ -52,6 +53,7 @@ const InputDiary = ({ initialContents = '', selectedDate, fetchMonthData }) => {
         alert(result.message.message);
         fetchMonthData(selectedDate);
         setIsEditMode(false);
+        fetchAdvice();
       } else {
         alert('일기 저장에 실패했습니다: ' + result.error);
       }
@@ -61,10 +63,15 @@ const InputDiary = ({ initialContents = '', selectedDate, fetchMonthData }) => {
   return (
     <div className="bg-gray-100 rounded-3xl shadow-md p-6 max-w-md mx-auto font-noto-sans-kr">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-bold text-black">{dayjs(selectedDate).format('M월 D일 dddd')} - 나의 하루 기억하기</h3>
+        <h3 className="text-lg font-bold text-black">
+          {dayjs(selectedDate).format('M월 D일 dddd')} - 나의 하루 기억하기
+        </h3>
         <button
           onClick={isEditMode ? handleSave : () => setIsEditMode(true)}
-          className={"text-white font-bold py-2 px-4 rounded hover:bg-opacity-90 transition duration-300" + (!isEditMode || diaryEntry !== initialContents ? ' bg-blue': ' bg-skyblue' )}
+          className={
+            'text-white font-bold py-2 px-4 rounded hover:bg-opacity-90 transition duration-300' +
+            (!isEditMode || diaryEntry !== initialContents ? ' bg-blue' : ' bg-skyblue')
+          }
         >
           {isEditMode ? '저장' : '수정'}
         </button>
@@ -88,6 +95,7 @@ InputDiary.propTypes = {
   initialContents: PropTypes.string,
   selectedDate: PropTypes.string,
   fetchMonthData: PropTypes.func,
+  fetchAdvice: PropTypes.func,
 };
 
 export default InputDiary;

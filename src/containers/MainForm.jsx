@@ -92,7 +92,7 @@ const MainForm = () => {
           {/* InputDiary */}
           <div className="flex justify-end items-start">
             <div className="w-full max-w-md">
-              <InputDiary selectedDate={selectedDate} fetchMonthData={fetchMonthData} />
+              <InputDiary selectedDate={selectedDate} fetchMonthData={fetchMonthData} fetchAdvice={fetchAdvice} />
             </div>
           </div>
 
