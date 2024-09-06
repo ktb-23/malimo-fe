@@ -20,10 +20,10 @@ jobs:
               node-version: 22.x
 
          - name: Install dependencies
-           run: yarn install --frozen-lockfile
+           run: npm ci  # yarn install -> npm ci로 변경
 
          - name: Run build script
-           run: yarn build
+           run: npm run build  # yarn build -> npm run build로 변경
 
          - name: Upload to S3
            env:
