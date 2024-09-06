@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbttn from '../component/Navbttn';
 import HomeIcon from '../image/Homeicon.svg';
@@ -13,7 +13,17 @@ import Logo from '../image/Logo.svg';
 const WebNav = () => {
   const [activeButton, setActiveButton] = useState('home');
   const navigate = useNavigate();
+  const [nickname, setNickname] = useState('');
 
+  const [storedNickname, setStoredNickname] = useState('');
+  useEffect(() => {
+    const localNickname = localStorage.getItem('nickname');
+    if (localNickname) {
+      setStoredNickname(localNickname);
+      setNickname(localNickname);
+      console.log(nickname);
+    }
+  }, []);
   const handleNavClick = (id) => {
     setActiveButton(id);
     if (id === 'mypage') {
@@ -40,7 +50,7 @@ const WebNav = () => {
         <img src={Logo} alt="Logo" className="w-full h-auto" />
       </div>
       <div className="my-2 sm:my-3 md:my-4 px-2 sm:px-3 md:px-4 py-1 sm:py-2 border-b border-gray-200">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-[#4E46DD]">세영님</h2>
+        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-[#4E46DD]">{storedNickname}님,</h2>
         <p className="mb-2 sm:mb-3 text-sm sm:text-base md:text-lg text-gray-600">오늘도 고생하셨어요!</p>
         <div className="text-sm mt-4 sm:mt-6 md:mt-8 ">
           <Navbttn
