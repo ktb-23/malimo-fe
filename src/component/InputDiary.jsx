@@ -88,8 +88,4 @@ InputDiary.propTypes = {
   selectedDate: PropTypes.string,
 };
 
-InputDiary.defaultProps = {
-  initialContents: '',
-};
-
 export default InputDiary;

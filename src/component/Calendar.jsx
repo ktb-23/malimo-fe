@@ -129,8 +129,4 @@ Calendar.propTypes = {
   selectedDate: PropTypes.string,
 };
 
-Calendar.defaultProps = {
-  initialDate: new Date(),
-};
-
 export default Calendar;
