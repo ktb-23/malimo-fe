@@ -5,10 +5,16 @@ const ACCESS_TOKEN_KEY = 'accesstoken';
 const REFRESH_TOKEN_KEY = 'refreshtoken';
 const EMAIL_KEY = 'user_id';
 
+const getAuthorizationHeader = () => {
+  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  return token ? `Bearer ${token}` : '';
+};
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    Authorization: getAuthorizationHeader(), //헤더설정 일관되도록 수정
   },
 });
 
@@ -76,8 +82,12 @@ api.interceptors.response.use(
           .then(({ data }) => {
             const newAccessToken = data.accesstoken;
             localStorage.setItem(ACCESS_TOKEN_KEY, newAccessToken);
-            api.defaults.headers.common['Authorization'] = 'Bearer ' + newAccessToken;
-            originalRequest.headers['Authorization'] = 'Bearer ' + newAccessToken;
+
+            // 헤더 업데이트 방식을 통일
+            const newAuthHeader = `Bearer ${newAccessToken}`;
+            api.defaults.headers['Authorization'] = newAuthHeader;
+            originalRequest.headers['Authorization'] = newAuthHeader;
+
             processQueue(null, newAccessToken);
             resolve(api(originalRequest));
           })
