@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { searchDiary } from '../api/searchDiary';
+import { getDiaryMothMetaData } from '../api/getDiaryMothMetaData';
 
 const Calendar = ({ onDateChange, selectedDate }) => {
-  const [diaryData, setDiaryData] = useState({});
+  const [monthMetaData, setMonthMetaData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -11,7 +11,6 @@ const Calendar = ({ onDateChange, selectedDate }) => {
     fetchMonthData(selectedDate);
   }, [selectedDate]);
 
-  //FIXME: 별도 API 제작
   const fetchMonthData = async (date) => {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -20,18 +19,8 @@ const Calendar = ({ onDateChange, selectedDate }) => {
 
     try {
       // 한 달의 모든 날짜에 대해 일기 데이터를 가져옵니다.
-      const monthData = {};
-      const daysInMonth = new Date(year, date.getMonth() + 1, 0).getDate();
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateString = `${year}-${month}-${day.toString().padStart(2, '0')}`;
-        const result = await searchDiary(dateString);
-        if (result.success) {
-          monthData[dateString] = result.data;
-        }
-      }
-
-      setDiaryData(monthData);
+      const {data} = await getDiaryMothMetaData(year, month);
+      data.dates.forEach(item => setMonthMetaData((prevData) => ({...prevData, [item]: true})));
     } catch (err) {
       console.error('Failed to fetch month data:', err);
       setError('월간 데이터를 가져오는데 실패했습니다.');
@@ -46,33 +35,6 @@ const Calendar = ({ onDateChange, selectedDate }) => {
 
   const firstDayOfMonth = (date) => {
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-  };
-
-  const handleDateSelect = async (date) => {
-    onDateChange(date);
-    setLoading(true);
-    setError(null);
-
-    const formattedDate = date.toISOString().split('T')[0];
-    try {
-      const result = await searchDiary(formattedDate);
-      if (result.success) {
-        onDateChange(date, result.data);
-        setDiaryData((prevData) => ({
-          ...prevData,
-          [formattedDate]: result.data,
-        }));
-      } else {
-        setError(result.error);
-        onDateChange(date, null);
-      }
-    } catch (err) {
-      console.error('Failed to fetch diary:', err);
-      setError('일기를 가져오는데 실패했습니다.');
-      onDateChange(date, null);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const renderCalendar = () => {
@@ -105,7 +67,7 @@ const Calendar = ({ onDateChange, selectedDate }) => {
       const dateString = date.toISOString().split('T')[0];
       const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
       const dayOfWeek = date.getDay();
-      const hasDiaryEntry = diaryData[dateString];
+      const hasDiaryEntry = monthMetaData[dateString];
 
       let dayColor = '';
       if (dayOfWeek === 0) dayColor = 'text-red';
@@ -115,7 +77,7 @@ const Calendar = ({ onDateChange, selectedDate }) => {
       days.push(
         <div
           key={`day-${i}`}
-          onClick={() => handleDateSelect(date)}
+          onClick={() => onDateChange(date)}
           className={`flex items-center justify-center text-sm cursor-pointer relative
             ${isSelected ? 'font-semibold' : 'hover:bg-gray-100 active:bg-gray-200'}
             transition-colors duration-200`}
