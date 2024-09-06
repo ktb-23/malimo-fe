@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useValidation } from '../hooks/useValidation';
-import { useCheckDuplicate } from '../hooks/useCheckDuplicate';
 import { register } from '../api/register';
 import WebNav from '../containers/WebNav';
 import BigButton from '../component/BigButton';
@@ -15,7 +14,6 @@ const SignupForm = () => {
   const navigate = useNavigate();
 
   const { errors, validate, resetErrors } = useValidation();
-  const { duplicateErrors, checkDuplicateNickname, checkDuplicateEmail, resetDuplicateErrors } = useCheckDuplicate();
 
   const resetForm = () => {
     setNickname('');
@@ -23,7 +21,7 @@ const SignupForm = () => {
     setPassword('');
     setConfirmPassword('');
     resetErrors();
-    resetDuplicateErrors();
+    // resetDuplicateErrors();
   };
 
   const handleSignup = async (e) => {
@@ -36,14 +34,6 @@ const SignupForm = () => {
     const isPasswordConfirmationValid = validate('confirmPassword', password, confirmPassword);
 
     if (!isNicknameValid || !isEmailValid || !isPasswordValid || !isPasswordConfirmationValid) {
-      return;
-    }
-
-    // 서버 측 중복 검사
-    const isNicknameUnique = await checkDuplicateNickname(nickname);
-    const isEmailUnique = await checkDuplicateEmail(email);
-
-    if (!isNicknameUnique || !isEmailUnique) {
       return;
     }
 
@@ -62,9 +52,9 @@ const SignupForm = () => {
 
   // 모든 에러 메시지를 합치고 첫 번째 에러 메시지만 선택
   const errorMessage = useMemo(() => {
-    const allErrors = { ...errors, ...duplicateErrors };
+    const allErrors = { ...errors };
     return Object.values(allErrors).find((error) => error !== '') || '';
-  }, [errors, duplicateErrors]);
+  }, [errors]);
 
   return (
     <div className="flex h-screen w-screen">
