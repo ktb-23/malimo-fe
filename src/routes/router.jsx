@@ -16,7 +16,6 @@ const AppRouter = () => {
       <Route path="/signup" element={<SignupForm />} />
       <Route path="/main" element={<MainForm />} />
       <Route path="/myform" element={<MyForm />} />
-
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
