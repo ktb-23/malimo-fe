@@ -1,73 +1,70 @@
-import api from '../api';
+// src/config/validation.jsx
+
+export const ERROR_MESSAGES = {
+  NICKNAME_REQUIRED: '닉네임을 입력해주세요.',
+  NICKNAME_LENGTH: '닉네임은 2자 이상 20자 이하여야 합니다.',
+  EMAIL_REQUIRED: '이메일을 입력해주세요.',
+  EMAIL_INVALID: '유효한 이메일 주소를 입력해주세요.',
+  PASSWORD_REQUIRED: '비밀번호를 입력해주세요.',
+  PASSWORD_LENGTH: '비밀번호는 8자 이상이어야 합니다.',
+  PASSWORD_SPECIAL_CHAR: '비밀번호는 최소 하나의 특수문자를 포함해야 합니다.',
+  PASSWORD_CONFIRM_REQUIRED: '비밀번호 확인을 입력해주세요.',
+  PASSWORD_MISMATCH: '비밀번호가 일치하지 않습니다.',
+  LOGIN_FAILED: '이메일 또는 비밀번호가 올바르지 않습니다.',
+  LOGIN_ERROR: '로그인 중 오류가 발생했습니다. 다시 시도해 주세요.',
+};
 
 export const validateNickname = (nickname) => {
+  if (!nickname) {
+    return ERROR_MESSAGES.NICKNAME_REQUIRED;
+  }
   if (nickname.length < 2 || nickname.length > 20) {
-    return '닉네임은 2자 이상 20자 이하여야 합니다.';
+    return ERROR_MESSAGES.NICKNAME_LENGTH;
   }
   return '';
 };
 
 export const validateEmail = (email) => {
+  if (!email) {
+    return ERROR_MESSAGES.EMAIL_REQUIRED;
+  }
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    return '유효한 이메일 주소를 입력해주세요.';
+    return ERROR_MESSAGES.EMAIL_INVALID;
   }
   return '';
 };
 
 export const validatePassword = (password) => {
+  if (!password) {
+    return ERROR_MESSAGES.PASSWORD_REQUIRED;
+  }
   if (password.length < 8) {
-    return '비밀번호는 8자 이상이어야 합니다.';
+    return ERROR_MESSAGES.PASSWORD_LENGTH;
   }
   if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    return '비밀번호는 최소 하나의 특수문자를 포함해야 합니다.';
+    return ERROR_MESSAGES.PASSWORD_SPECIAL_CHAR;
   }
   return '';
 };
 
 export const validatePasswordConfirmation = (password, confirmPassword) => {
+  if (!confirmPassword) {
+    return ERROR_MESSAGES.PASSWORD_CONFIRM_REQUIRED;
+  }
   if (password !== confirmPassword) {
-    return '비밀번호가 일치하지 않습니다.';
+    return ERROR_MESSAGES.PASSWORD_MISMATCH;
   }
   return '';
 };
 
-export const checkDuplicateNickname = async (nickname) => {
-  try {
-    const response = await api.checkNickname(nickname);
-    return response.isDuplicate ? '이미 사용 중인 닉네임입니다.' : '';
-  } catch (error) {
-    console.error('닉네임 중복 체크 중 오류 발생:', error);
-    return '닉네임 중복 확인 중 오류가 발생했습니다. 다시 시도해 주세요.';
-  }
-};
+export const validateLoginCredentials = (email, password) => {
+  const emailError = validateEmail(email);
+  const passwordError = validatePassword(password);
 
-export const validateLogin = async (email, password) => {
-  try {
-    const response = await api.login(email, password);
-    return response.isValid ? '' : '아이디 또는 비밀번호가 올바르지 않습니다.';
-  } catch (error) {
-    console.error('로그인 검증 중 오류 발생:', error);
-    return '로그인 중 오류가 발생했습니다. 다시 시도해 주세요.';
+  if (emailError || passwordError) {
+    return emailError || passwordError;
   }
-};
 
-export const registerUser = async (userData) => {
-  try {
-    const response = await api.register(userData);
-    return response.success ? '' : '회원가입 중 오류가 발생했습니다.';
-  } catch (error) {
-    console.error('회원가입 중 오류 발생:', error);
-    return '회원가입 중 오류가 발생했습니다. 다시 시도해 주세요.';
-  }
-};
-
-export const checkDuplicateEmail = async (email) => {
-  try {
-    const response = await api.checkEmail(email);
-    return response.isDuplicate ? '이미 사용 중인 이메일 주소입니다.' : '';
-  } catch (error) {
-    console.error('이메일 중복 체크 중 오류 발생:', error);
-    return '이메일 중복 확인 중 오류가 발생했습니다. 다시 시도해 주세요.';
-  }
+  return '';
 };

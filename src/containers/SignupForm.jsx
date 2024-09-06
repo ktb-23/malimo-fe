@@ -1,6 +1,11 @@
-import React, { useState } from 'react';
+// src/components/SignupForm.jsx
+
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import WebNav from './WebNav';
+import { useValidation } from '../hooks/useValidation';
+import { useCheckDuplicate } from '../hooks/useCheckDuplicate';
+import { register } from '../api/register';
+import WebNav from '../containers/WebNav';
 import BigButton from '../component/BigButton';
 import Input from '../component/Input';
 
@@ -11,26 +16,63 @@ const SignupForm = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSignup = (e) => {
-    e.preventDefault();
-    // 회원가입 로직을 여기에 구현합니다.
-    console.log('회원가입 시도:', { nickname, email, password, confirmPassword });
-    // 예: API 호출, 상태 업데이트 등
+  const { errors, validate, resetErrors } = useValidation();
+  const { duplicateErrors, checkDuplicateNickname, checkDuplicateEmail, resetDuplicateErrors } = useCheckDuplicate();
+
+  const resetForm = () => {
+    setNickname('');
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    resetErrors();
+    resetDuplicateErrors();
   };
 
-  const handleLogin = () => {
-    console.log('로그인 페이지로 이동');
-    navigate('/login');
+  const handleSignup = async (e) => {
+    e.preventDefault();
+
+    // 클라이언트 측 유효성 검사
+    const isNicknameValid = validate('nickname', nickname);
+    const isEmailValid = validate('email', email);
+    const isPasswordValid = validate('password', password);
+    const isPasswordConfirmationValid = validate('confirmPassword', password, confirmPassword);
+
+    if (!isNicknameValid || !isEmailValid || !isPasswordValid || !isPasswordConfirmationValid) {
+      return;
+    }
+
+    // 서버 측 중복 검사
+    const isNicknameUnique = await checkDuplicateNickname(nickname);
+    const isEmailUnique = await checkDuplicateEmail(email);
+
+    if (!isNicknameUnique || !isEmailUnique) {
+      return;
+    }
+
+    // 모든 검증을 통과했다면 회원가입 API 호출
+    const result = await register({ nickname, email, password });
+
+    if (result.success) {
+      console.log('회원가입 성공:', result.message);
+      navigate('/login');
+    } else {
+      console.error('회원가입 실패:', result.message);
+      alert(result.message); // 실패 메시지를 alert로 표시
+      resetForm(); // 폼 초기화
+    }
   };
+
+  // 모든 에러 메시지를 합치고 첫 번째 에러 메시지만 선택
+  const errorMessage = useMemo(() => {
+    const allErrors = { ...errors, ...duplicateErrors };
+    return Object.values(allErrors).find((error) => error !== '') || '';
+  }, [errors, duplicateErrors]);
 
   return (
     <div className="flex h-screen w-screen">
-      {/* WebNav */}
       <div className="w-1/4 min-w-[300px] max-w-[300px]">
         <WebNav />
       </div>
-
-      {/* Signup Form Area */}
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-md p-8">
           <h2 className="text-2xl font-bold mb-6 text-center">
@@ -43,7 +85,6 @@ const SignupForm = () => {
               placeholder="닉네임"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              name="nickname"
               required
             />
             <Input
@@ -51,7 +92,6 @@ const SignupForm = () => {
               placeholder="이메일"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              name="email"
               required
             />
             <Input
@@ -59,7 +99,6 @@ const SignupForm = () => {
               placeholder="비밀번호"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              name="password"
               required
             />
             <Input
@@ -67,21 +106,11 @@ const SignupForm = () => {
               placeholder="비밀번호 확인"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              name="confirmPassword"
               required
             />
+            {errorMessage && <div className="text-red text-sm mb-4">{errorMessage}</div>}
             <BigButton type="submit">회원가입</BigButton>
           </form>
-          <div className="mt-4 text-center">
-            <span className="text-gray-300">이미 계정이 있으신가요?</span>{' '}
-            <button
-              type="button"
-              onClick={handleLogin}
-              className="text-blue underline font-semibold hover:text-blue focus:outline-none"
-            >
-              로그인
-            </button>
-          </div>
         </div>
       </div>
     </div>
