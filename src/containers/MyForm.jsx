@@ -2,35 +2,40 @@ import React, { useState } from 'react';
 import WebNav from './WebNav';
 import BigButton from '../component/BigButton';
 import Input from '../component/Input';
+import ConfirmModal from '../component/ConfirmModal';
 
 const MyForm = () => {
   const [nickname, setNickname] = useState('');
-  // The email value can be hardcoded or fetched directly where necessary since there's no plan to change it in the form.
-  const email = 'user@example.com'; // 예시 이메일, 실제로는 사용자의 실제 이메일로 초기화해야 합니다.
+  const email = 'user@example.com';
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // 여기에 정보 수정 로직을 구현합니다.
     console.log('정보 수정:', { nickname, password, confirmPassword });
-    // API 호출 등의 로직을 추가할 수 있습니다.
   };
 
   const handleNicknameChange = () => {
-    // 닉네임 변경 로직을 구현합니다.
     console.log('닉네임 변경:', nickname);
-    // API 호출 등의 로직을 추가할 수 있습니다.
+  };
+
+  const handleDeleteAccount = () => {
+    setIsModalOpen(true);
+  };
+
+  const confirmDeleteAccount = () => {
+    console.log('회원 탈퇴 진행');
+    // 여기에 실제 회원 탈퇴 로직을 구현합니다.
+    setIsModalOpen(false);
   };
 
   return (
     <div className="flex h-screen w-screen">
-      {/* WebNav */}
       <div className="w-1/4 min-w-[300px] max-w-[300px]">
         <WebNav />
       </div>
 
-      {/* My Information Form Area */}
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-md p-8">
           <h2 className="text-2xl font-bold mb-6 text-center text-blue">세영님의 페이지</h2>
@@ -81,8 +86,19 @@ const MyForm = () => {
             />
             <BigButton type="submit">정보 수정</BigButton>
           </form>
+          <br />
+          <button className="underline text-gray-300 hover:text-gray-400" onClick={handleDeleteAccount}>
+            회원탈퇴
+          </button>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={confirmDeleteAccount}
+        message="정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+      />
     </div>
   );
 };
