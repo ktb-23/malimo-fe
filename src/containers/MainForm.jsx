@@ -9,7 +9,7 @@ import Graph from '../component/Graph';
 import dayjs from '../util/dayjs';
 
 const MainForm = () => {
-  const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD'));
+  const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY.MM.DD'));
 
   const handleDateChange = (date) => {
     setSelectedDate(date);

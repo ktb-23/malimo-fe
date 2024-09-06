@@ -64,7 +64,7 @@ const Calendar = ({ onDateChange, selectedDate }) => {
 
     // Cells for each day of the month
     for (let i = 1; i <= totalDays; i++) {
-      const currentDay = dayjs(selectedDate).date(i).format('YYYY-MM-DD')
+      const currentDay = dayjs(selectedDate).date(i).format('YYYY.MM.DD')
       const isSelected = currentDay === selectedDate;
       const dayOfWeek = dayjs(currentDay).format('d');
       const hasDiaryEntry = monthMetaData[currentDay];
@@ -101,7 +101,7 @@ const Calendar = ({ onDateChange, selectedDate }) => {
     <div className="bg-white rounded-lg aspect-square max-w-sm mx-auto font-ddin">
       <div className="flex justify-between items-center mb-4 p-4">
         <button
-          onClick={() => onDateChange(dayjs(selectedDate).subtract(1, 'month').startOf('month').format('YYYY-MM-DD'))}
+          onClick={() => onDateChange(dayjs(selectedDate).subtract(1, 'month').startOf('month').format('YYYY.MM.DD'))}
           className="text-gray-300 hover:text-black"
         >
           &lt;
@@ -110,7 +110,7 @@ const Calendar = ({ onDateChange, selectedDate }) => {
           {dayjs(selectedDate).year()}년 {monthNames[dayjs(selectedDate).month()]}
         </h2>
         <button
-          onClick={() => onDateChange(dayjs(selectedDate).add(1, 'month').startOf('month').format('YYYY-MM-DD'))}
+          onClick={() => onDateChange(dayjs(selectedDate).add(1, 'month').startOf('month').format('YYYY.MM.DD'))}
           className="text-gray-300 hover:text-black"
         >
           &gt;
