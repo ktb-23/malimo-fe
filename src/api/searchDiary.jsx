@@ -1,8 +1,9 @@
 import api from '../config/apiconfig';
+import dayjs from '../util/dayjs';
 
 export const searchDiary = async (date) => {
   try {
-    const response = await api.get(`/api/v1/diary/${date}`, {
+    const response = await api.get(`/api/v1/diary/${dayjs(date).format('YYYY.MM.DD')}`, {
       headers: {
         'Content-Type': 'application/json',
         // Authorization 헤더는 apiconfig에서 설정되어 있다고 가정합니다.

@@ -3,6 +3,7 @@ import { changeDiary } from '../api/changeDiary';
 import { searchDiary } from '../api/searchDiary';
 import { writeDiary } from '../api/writeDiary';
 import PropTypes from 'prop-types';
+import dayjs from '../util/dayjs';
 
 //TODO: 새롭게 일기 작성한 경우 월별 일기 목록을 다시 불러오는 함수 필요
 const InputDiary = ({ initialContents = '', selectedDate }) => {
@@ -12,8 +13,7 @@ const InputDiary = ({ initialContents = '', selectedDate }) => {
 
   useEffect(() => {
     const fetchDiary = async () => {
-      const formattedDate = selectedDate.toISOString().split('T')[0];
-      const result = await searchDiary(formattedDate);
+      const result = await searchDiary(selectedDate);
       if (result.success) {
         setDiaryEntry(result.data.contents || '');
         setDiaryId(result.data.diary_id)
@@ -47,10 +47,7 @@ const InputDiary = ({ initialContents = '', selectedDate }) => {
       }
     } else {
       // 새로운 일기 저장
-      const currentDate = selectedDate || new Date();
-      const formattedDate = currentDate.toISOString().split('T')[0];
-      console.log(formattedDate)
-      const result = await writeDiary(formattedDate, diaryEntry);
+      const result = await writeDiary(selectedDate, diaryEntry);
       if (result.success) {
         alert(result.message.message);
         setIsEditMode(false);
@@ -60,21 +57,10 @@ const InputDiary = ({ initialContents = '', selectedDate }) => {
     }
   };
 
-  const formatDate = (date = new Date()) => {
-    const months = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
-    const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
-
-    const month = months[date.getMonth()];
-    const day = date.getDate();
-    const weekday = days[date.getDay()];
-
-    return `${month} ${day}일 ${weekday}`;
-  };
-
   return (
     <div className="bg-gray-100 rounded-3xl shadow-md p-6 max-w-md mx-auto font-noto-sans-kr">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-bold text-black">{formatDate(selectedDate || new Date())} - 나의 하루 기억하기</h3>
+        <h3 className="text-lg font-bold text-black">{dayjs(selectedDate).format('M월 D일 dddd')} - 나의 하루 기억하기</h3>
         <button
           onClick={isEditMode ? handleSave : () => setIsEditMode(true)}
           className={"text-white font-bold py-2 px-4 rounded hover:bg-opacity-90 transition duration-300" + (!isEditMode || diaryEntry !== initialContents ? ' bg-blue': ' bg-skyblue' )}
@@ -99,7 +85,7 @@ const InputDiary = ({ initialContents = '', selectedDate }) => {
 InputDiary.propTypes = {
   diaryId: PropTypes.number,
   initialContents: PropTypes.string,
-  selectedDate: PropTypes.instanceOf(Date),
+  selectedDate: PropTypes.string,
 };
 
 InputDiary.defaultProps = {

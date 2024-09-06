@@ -6,9 +6,10 @@ import Search from '../component/Search';
 import Summary from '../component/Summary';
 import Advice from '../component/Advice';
 import Graph from '../component/Graph';
+import dayjs from '../util/dayjs';
 
 const MainForm = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD'));
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -59,14 +60,14 @@ const MainForm = () => {
           {/* Summary */}
           <div className="flex justify-start items-start">
             <div className="w-full max-w-md">
-              <Summary />
+              {/* <Summary /> */}
             </div>
           </div>
 
           {/* Advice */}
           <div className="flex justify-start items-start">
             <div className="w-full max-w-md">
-              <Advice />
+              {/* <Advice /> */}
             </div>
           </div>
         </div>

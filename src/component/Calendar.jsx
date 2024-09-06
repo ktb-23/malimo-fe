@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { getDiaryMothMetaData } from '../api/getDiaryMothMetaData';
+import dayjs from '../util/dayjs';
 
 const Calendar = ({ onDateChange, selectedDate }) => {
   const [monthMetaData, setMonthMetaData] = useState({});
@@ -12,8 +13,9 @@ const Calendar = ({ onDateChange, selectedDate }) => {
   }, [selectedDate]);
 
   const fetchMonthData = async (date) => {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = dayjs(date).year();
+    const month = dayjs(date).month();
+    console.log(year, month);
     setLoading(true);
     setError(null);
 
@@ -30,11 +32,11 @@ const Calendar = ({ onDateChange, selectedDate }) => {
   };
 
   const daysInMonth = (date) => {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    return dayjs(date).daysInMonth();
   };
 
   const firstDayOfMonth = (date) => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+    return dayjs(date).startOf('month').format('d');
   };
 
   const renderCalendar = () => {
@@ -63,11 +65,10 @@ const Calendar = ({ onDateChange, selectedDate }) => {
 
     // Cells for each day of the month
     for (let i = 1; i <= totalDays; i++) {
-      const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), i);
-      const dateString = date.toISOString().split('T')[0];
-      const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
-      const dayOfWeek = date.getDay();
-      const hasDiaryEntry = monthMetaData[dateString];
+      const currentDay = dayjs(selectedDate).date(i).format('YYYY-MM-DD')
+      const isSelected = currentDay === selectedDate;
+      const dayOfWeek = dayjs(currentDay).format('d');
+      const hasDiaryEntry = monthMetaData[currentDay];
 
       let dayColor = '';
       if (dayOfWeek === 0) dayColor = 'text-red';
@@ -77,7 +78,7 @@ const Calendar = ({ onDateChange, selectedDate }) => {
       days.push(
         <div
           key={`day-${i}`}
-          onClick={() => onDateChange(date)}
+          onClick={() => onDateChange(currentDay)}
           className={`flex items-center justify-center text-sm cursor-pointer relative
             ${isSelected ? 'font-semibold' : 'hover:bg-gray-100 active:bg-gray-200'}
             transition-colors duration-200`}
@@ -101,16 +102,16 @@ const Calendar = ({ onDateChange, selectedDate }) => {
     <div className="bg-white rounded-lg aspect-square max-w-sm mx-auto font-ddin">
       <div className="flex justify-between items-center mb-4 p-4">
         <button
-          onClick={() => onDateChange(new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1, 1))}
+          onClick={() => onDateChange(dayjs(selectedDate).subtract(1, 'month').startOf('month').format('YYYY-MM-DD'))}
           className="text-gray-300 hover:text-black"
         >
           &lt;
         </button>
         <h2 className="text-lg font-semibold text-black">
-          {selectedDate.getFullYear()}년 {monthNames[selectedDate.getMonth()]}
+          {dayjs(selectedDate).year()}년 {monthNames[dayjs(selectedDate).month()]}
         </h2>
         <button
-          onClick={() => onDateChange(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1))}
+          onClick={() => onDateChange(dayjs(selectedDate).add(1, 'month').startOf('month').format('YYYY-MM-DD'))}
           className="text-gray-300 hover:text-black"
         >
           &gt;
@@ -125,7 +126,7 @@ const Calendar = ({ onDateChange, selectedDate }) => {
 
 Calendar.propTypes = {
   onDateChange: PropTypes.func.isRequired,
-  selectedDate: PropTypes.instanceOf(Date),
+  selectedDate: PropTypes.string,
 };
 
 Calendar.defaultProps = {
