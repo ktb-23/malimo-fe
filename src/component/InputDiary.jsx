@@ -1,16 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { changeDiary } from '../api/changeDiary';
+import PropTypes from 'prop-types';
 
-const InputDiary = () => {
-  const [diaryEntry, setDiaryEntry] = useState('');
+const InputDiary = ({ diaryId, initialContents = '' }) => {
+  const [diaryEntry, setDiaryEntry] = useState(initialContents);
+  const [isEditing, setIsEditing] = useState(!initialContents);
+  const [isSaved, setIsSaved] = useState(!!initialContents);
+
+  useEffect(() => {
+    if (initialContents) {
+      setDiaryEntry(initialContents);
+      setIsEditing(false);
+      setIsSaved(true);
+    }
+  }, [initialContents]);
 
   const handleInputChange = (e) => {
     setDiaryEntry(e.target.value);
   };
 
-  const handleSave = () => {
-    console.log('일기 저장:', diaryEntry);
-    alert('일기가 저장되었습니다!');
-    setDiaryEntry('');
+  const handleSave = async () => {
+    if (isEditing) {
+      if (isSaved) {
+        // 수정 모드에서 저장
+        const result = await changeDiary(diaryId, diaryEntry);
+        if (result.success) {
+          alert(result.message);
+          setIsEditing(false);
+        } else {
+          alert('일기 수정에 실패했습니다: ' + result.message);
+        }
+      } else {
+        // 새로운 일기 저장
+        console.log('일기 저장:', diaryEntry);
+        alert('일기가 저장되었습니다!');
+        setIsEditing(false);
+        setIsSaved(true);
+      }
+    } else {
+      // 수정 모드로 전환
+      setIsEditing(true);
+    }
   };
 
   const formatDate = () => {
@@ -33,17 +63,30 @@ const InputDiary = () => {
           onClick={handleSave}
           className="bg-skyblue text-white font-bold py-2 px-4 rounded hover:bg-opacity-90 transition duration-300"
         >
-          저장
+          {isEditing ? (isSaved ? '저장' : '저장') : '수정'}
         </button>
       </div>
-      <textarea
-        value={diaryEntry}
-        onChange={handleInputChange}
-        placeholder="오늘 하루는 어떠셨나요? 여기에 적어주세요..."
-        className="w-full h-40 p-2 border border-gray-200 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue focus:border-transparent"
-      />
+      {isEditing ? (
+        <textarea
+          value={diaryEntry}
+          onChange={handleInputChange}
+          placeholder="오늘 하루는 어떠셨나요? 여기에 적어주세요..."
+          className="w-full h-40 p-2 border border-gray-200 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue focus:border-transparent"
+        />
+      ) : (
+        <div className="bg-gray-100 rounded-md p-4 h-40 overflow-auto">{diaryEntry}</div>
+      )}
     </div>
   );
+};
+
+InputDiary.propTypes = {
+  diaryId: PropTypes.number,
+  initialContents: PropTypes.string,
+};
+
+InputDiary.defaultProps = {
+  initialContents: '',
 };
 
 export default InputDiary;
