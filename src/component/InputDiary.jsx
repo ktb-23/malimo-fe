@@ -15,7 +15,7 @@ const InputDiary = ({ initialContents = '', selectedDate }) => {
     const fetchDiary = async () => {
       const result = await searchDiary(selectedDate);
       if (result.success) {
-        setDiaryEntry(result.data.contents || '');
+        setDiaryEntry(result.data.contents);
         setDiaryId(result.data.diary_id)
         setIsEditMode(false);
       } else {

@@ -1,11 +1,12 @@
 // src/api/writeDiary.jsx
 import api from '../config/apiconfig';
+import dayjs from '../util/dayjs';
 
 export const writeDiary = async (date, contents) => {
   try {
     const response = await api.post(
       '/api/v1/diary',
-      { date, contents },
+      { date: dayjs(date).format('YYYY.MM.DD'), contents },
       {
         headers: {
           'Content-Type': 'application/json',
