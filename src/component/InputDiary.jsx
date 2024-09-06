@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import dayjs from '../util/dayjs';
 
 //TODO: 새롭게 일기 작성한 경우 월별 일기 목록을 다시 불러오는 함수 필요
-const InputDiary = ({ initialContents = '', selectedDate }) => {
+const InputDiary = ({ initialContents = '', selectedDate, fetchMonthData }) => {
   const [diaryEntry, setDiaryEntry] = useState(initialContents);
   const [diaryId, setDiaryId] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -41,6 +41,7 @@ const InputDiary = ({ initialContents = '', selectedDate }) => {
       const result = await changeDiary(diaryId, diaryEntry);
       if (result.success) {
         alert(result.message);
+        fetchMonthData(selectedDate);
         setIsEditMode(false);
       } else {
         alert('일기 수정에 실패했습니다: ' + result.message);
@@ -50,6 +51,7 @@ const InputDiary = ({ initialContents = '', selectedDate }) => {
       const result = await writeDiary(selectedDate, diaryEntry);
       if (result.success) {
         alert(result.message.message);
+        fetchMonthData(selectedDate);
         setIsEditMode(false);
       } else {
         alert('일기 저장에 실패했습니다: ' + result.error);
@@ -86,6 +88,7 @@ InputDiary.propTypes = {
   diaryId: PropTypes.number,
   initialContents: PropTypes.string,
   selectedDate: PropTypes.string,
+  fetchMonthData: PropTypes.func,
 };
 
 export default InputDiary;

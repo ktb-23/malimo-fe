@@ -1,34 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { getDiaryMothMetaData } from '../api/getDiaryMothMetaData';
 import dayjs from '../util/dayjs';
 
-const Calendar = ({ onDateChange, selectedDate }) => {
-  const [monthMetaData, setMonthMetaData] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetchMonthData(selectedDate);
-  }, [selectedDate]);
-
-  const fetchMonthData = async (date) => {
-    const year = dayjs(date).year();
-    const month = dayjs(date).month(); //NOTE: 1월 -> 0
-    setLoading(true);
-    setError(null);
-
-    try {
-      // 한 달의 모든 날짜에 대해 일기 데이터를 가져옵니다.
-      const {data} = await getDiaryMothMetaData(year, month + 1);
-      data.dates.forEach(item => setMonthMetaData((prevData) => ({...prevData, [item]: true})));
-    } catch (err) {
-      console.error('Failed to fetch month data:', err);
-      setError('월간 데이터를 가져오는데 실패했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  };
+const Calendar = ({loading, error, monthMetaData, onDateChange, selectedDate }) => {
 
   const daysInMonth = (date) => {
     return dayjs(date).daysInMonth();
@@ -124,6 +98,9 @@ const Calendar = ({ onDateChange, selectedDate }) => {
 };
 
 Calendar.propTypes = {
+  loading: PropTypes.bool.isRequired,
+  error: PropTypes.string.isRequired,
+  monthMetaData: PropTypes.object.isRequired,
   onDateChange: PropTypes.func.isRequired,
   selectedDate: PropTypes.string,
 };
