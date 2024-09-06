@@ -1,12 +1,41 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { searchAdvice } from '../api/searchAdvice';
 
-const Advice = () => {
-  const adviceData = {
+const Advice = ({ date }) => {
+  const [adviceData, setAdviceData] = useState({
     title: '오늘의 조언',
-    content: '작은 일에도 감사하는 마음을 가지세요. 감사는 더 많은 행복을 가져다 줍니다.',
+    content: '',
     recommendationTitle: '추천 콘텐츠',
-    recommendationList: ['긍정적인 마인드셋 기르기', '매일 감사일기 쓰기', '주변 사람들에게 감사 표현하기'],
-  };
+    recommendationList: [],
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAdvice = async () => {
+      setLoading(true);
+      const result = await searchAdvice(date);
+      if (result.success) {
+        setAdviceData((prevData) => ({
+          ...prevData,
+          content: result.data.content,
+          recommendationList: ['긍정적인 마인드셋 기르기', '매일 감사일기 쓰기', '주변 사람들에게 감사 표현하기'],
+        }));
+        setError(null);
+      } else {
+        setError(result.error);
+      }
+      setLoading(false);
+    };
+
+    if (date) {
+      fetchAdvice();
+    }
+  }, [date]);
+
+  if (loading) return <div className="text-center">조언을 불러오는 중...</div>;
+  if (error) return <div className="text-center text-red-500">{error}</div>;
 
   return (
     <div className="bg-white rounded-lg shadow-[0_0_10px_rgba(0,0,0,0.1)] p-6 max-w-md mx-auto font-noto-sans-kr">
@@ -24,6 +53,10 @@ const Advice = () => {
       </div>
     </div>
   );
+};
+
+Advice.propTypes = {
+  date: PropTypes.string.isRequired,
 };
 
 export default Advice;
