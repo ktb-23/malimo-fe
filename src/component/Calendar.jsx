@@ -14,14 +14,13 @@ const Calendar = ({ onDateChange, selectedDate }) => {
 
   const fetchMonthData = async (date) => {
     const year = dayjs(date).year();
-    const month = dayjs(date).month();
-    console.log(year, month);
+    const month = dayjs(date).month(); //NOTE: 1월 -> 0
     setLoading(true);
     setError(null);
 
     try {
       // 한 달의 모든 날짜에 대해 일기 데이터를 가져옵니다.
-      const {data} = await getDiaryMothMetaData(year, month);
+      const {data} = await getDiaryMothMetaData(year, month + 1);
       data.dates.forEach(item => setMonthMetaData((prevData) => ({...prevData, [item]: true})));
     } catch (err) {
       console.error('Failed to fetch month data:', err);
