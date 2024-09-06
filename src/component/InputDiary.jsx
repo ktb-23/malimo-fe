@@ -85,7 +85,7 @@ const InputDiary = ({ diaryId, initialContents = '', selectedDate }) => {
         <h3 className="text-lg font-bold text-black">{formatDate(selectedDate || new Date())} - 나의 하루 기억하기</h3>
         <button
           onClick={handleSave}
-          className="bg-skyblue text-white font-bold py-2 px-4 rounded hover:bg-opacity-90 transition duration-300"
+          className={"text-white font-bold py-2 px-4 rounded hover:bg-opacity-90 transition duration-300" + (diaryEntry === initialContents ? ' bg-skyblue' : ' bg-blue')}
         >
           {isEditing ? '저장' : '수정'}
         </button>
