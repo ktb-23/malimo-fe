@@ -1,19 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { changeDiary } from '../api/changeDiary';
+import { searchDiary } from '../api/searchDiary';
 import PropTypes from 'prop-types';
 
-const InputDiary = ({ diaryId, initialContents = '' }) => {
+const InputDiary = ({ diaryId, initialContents = '', selectedDate }) => {
   const [diaryEntry, setDiaryEntry] = useState(initialContents);
   const [isEditing, setIsEditing] = useState(!initialContents);
   const [isSaved, setIsSaved] = useState(!!initialContents);
 
   useEffect(() => {
-    if (initialContents) {
-      setDiaryEntry(initialContents);
-      setIsEditing(false);
-      setIsSaved(true);
-    }
-  }, [initialContents]);
+    const fetchDiary = async () => {
+      if (selectedDate) {
+        const formattedDate = selectedDate.toISOString().split('T')[0];
+        const result = await searchDiary(formattedDate);
+        if (result.success) {
+          setDiaryEntry(result.data.content || '');
+          setIsEditing(false);
+          setIsSaved(true);
+        } else {
+          setDiaryEntry('');
+          setIsEditing(true);
+          setIsSaved(false);
+        }
+      }
+    };
+
+    fetchDiary();
+  }, [selectedDate]);
 
   const handleInputChange = (e) => {
     setDiaryEntry(e.target.value);
@@ -71,7 +84,7 @@ const InputDiary = ({ diaryId, initialContents = '' }) => {
           value={diaryEntry}
           onChange={handleInputChange}
           placeholder="오늘 하루는 어떠셨나요? 여기에 적어주세요..."
-          className="w-full h-40 p-2 border border-gray-200 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue focus:border-transparent"
+          className="w-full bg-gray-100 h-40 p-2 border border-none rounded-md resize-none focus:outline-none "
         />
       ) : (
         <div className="bg-gray-100 rounded-md p-4 h-40 overflow-auto">{diaryEntry}</div>
@@ -83,6 +96,7 @@ const InputDiary = ({ diaryId, initialContents = '' }) => {
 InputDiary.propTypes = {
   diaryId: PropTypes.number,
   initialContents: PropTypes.string,
+  selectedDate: PropTypes.instanceOf(Date),
 };
 
 InputDiary.defaultProps = {

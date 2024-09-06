@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { searchDiary } from '../api/searchDiary';
 
-const Calendar = ({ diaryData: propDiaryData }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(null);
+const Calendar = ({ diaryData: propDiaryData, onDateChange, initialDate }) => {
+  const [currentDate, setCurrentDate] = useState(initialDate || new Date());
+  const [selectedDate, setSelectedDate] = useState(initialDate || new Date());
   const [diaryData, setDiaryData] = useState({});
 
   // 샘플 데이터 생성
@@ -40,6 +41,29 @@ const Calendar = ({ diaryData: propDiaryData }) => {
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   };
 
+  const handleDateSelect = async (date) => {
+    setSelectedDate(date);
+
+    // 선택한 날짜의 일기 조회
+    const formattedDate = date.toISOString().split('T')[0];
+    const result = await searchDiary(formattedDate);
+
+    if (result.success) {
+      // 일기 데이터를 상위 컴포넌트로 전달
+      onDateChange(date, result.data);
+
+      // 로컬 상태 업데이트 (필요한 경우)
+      setDiaryData((prevData) => ({
+        ...prevData,
+        [formattedDate]: result.data,
+      }));
+    } else {
+      console.error(result.error);
+      // 에러 처리 (예: 사용자에게 알림)
+      onDateChange(date, null);
+    }
+  };
+
   const renderCalendar = () => {
     const totalDays = daysInMonth(currentDate);
     const firstDay = firstDayOfMonth(currentDate);
@@ -74,12 +98,12 @@ const Calendar = ({ diaryData: propDiaryData }) => {
       let dayColor = '';
       if (dayOfWeek === 0) dayColor = 'text-red';
       else if (dayOfWeek === 6) dayColor = 'text-blue';
-      else dayColor = 'text-gray-300'; // 평일의 기본 색상
+      else dayColor = 'text-gray-300';
 
       days.push(
         <div
           key={`day-${i}`}
-          onClick={() => setSelectedDate(date)}
+          onClick={() => handleDateSelect(date)}
           className={`flex items-center justify-center text-sm cursor-pointer relative
             ${isSelected ? 'font-semibold' : 'hover:bg-gray-100 active:bg-gray-200'} 
             transition-colors duration-200`}
@@ -94,7 +118,6 @@ const Calendar = ({ diaryData: propDiaryData }) => {
         </div>,
       );
     }
-
     return <div className="grid grid-cols-7 gap-1 h-full">{days}</div>;
   };
 
@@ -126,10 +149,13 @@ const Calendar = ({ diaryData: propDiaryData }) => {
 
 Calendar.propTypes = {
   diaryData: PropTypes.object,
+  onDateChange: PropTypes.func.isRequired,
+  initialDate: PropTypes.instanceOf(Date),
 };
 
 Calendar.defaultProps = {
   diaryData: {},
+  initialDate: new Date(),
 };
 
 export default Calendar;

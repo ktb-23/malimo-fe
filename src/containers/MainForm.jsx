@@ -53,7 +53,7 @@ const MainForm = () => {
           {/* Calendar */}
           <div className="flex justify-end items-start">
             <div className="w-full max-w-md">
-              <Calendar onDateChange={handleDateChange} />
+              <Calendar onDateChange={handleDateChange} initialDate={selectedDate} />
             </div>
           </div>
 
