@@ -5,7 +5,6 @@ import { writeDiary } from '../api/writeDiary';
 import PropTypes from 'prop-types';
 import dayjs from '../util/dayjs';
 
-//TODO: 새롭게 일기 작성한 경우 월별 일기 목록을 다시 불러오는 함수 필요
 const InputDiary = ({ initialContents = '', selectedDate, fetchMonthData }) => {
   const [diaryEntry, setDiaryEntry] = useState(initialContents);
   const [diaryId, setDiaryId] = useState(null);
