@@ -2,17 +2,16 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { searchDiary } from '../api/searchDiary';
 
-const Calendar = ({ onDateChange, initialDate }) => {
-  const [currentDate, setCurrentDate] = useState(initialDate || new Date());
-  const [selectedDate, setSelectedDate] = useState(initialDate || new Date());
+const Calendar = ({ onDateChange, selectedDate }) => {
   const [diaryData, setDiaryData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchMonthData(currentDate);
-  }, [currentDate]);
+    fetchMonthData(selectedDate);
+  }, [selectedDate]);
 
+  //FIXME: 별도 API 제작
   const fetchMonthData = async (date) => {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -50,7 +49,7 @@ const Calendar = ({ onDateChange, initialDate }) => {
   };
 
   const handleDateSelect = async (date) => {
-    setSelectedDate(date);
+    onDateChange(date);
     setLoading(true);
     setError(null);
 
@@ -77,8 +76,8 @@ const Calendar = ({ onDateChange, initialDate }) => {
   };
 
   const renderCalendar = () => {
-    const totalDays = daysInMonth(currentDate);
-    const firstDay = firstDayOfMonth(currentDate);
+    const totalDays = daysInMonth(selectedDate);
+    const firstDay = firstDayOfMonth(selectedDate);
     const days = [];
 
     // Weekday headers
@@ -102,7 +101,7 @@ const Calendar = ({ onDateChange, initialDate }) => {
 
     // Cells for each day of the month
     for (let i = 1; i <= totalDays; i++) {
-      const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
+      const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), i);
       const dateString = date.toISOString().split('T')[0];
       const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
       const dayOfWeek = date.getDay();
@@ -118,7 +117,7 @@ const Calendar = ({ onDateChange, initialDate }) => {
           key={`day-${i}`}
           onClick={() => handleDateSelect(date)}
           className={`flex items-center justify-center text-sm cursor-pointer relative
-            ${isSelected ? 'font-semibold' : 'hover:bg-gray-100 active:bg-gray-200'} 
+            ${isSelected ? 'font-semibold' : 'hover:bg-gray-100 active:bg-gray-200'}
             transition-colors duration-200`}
         >
           <div
@@ -140,16 +139,16 @@ const Calendar = ({ onDateChange, initialDate }) => {
     <div className="bg-white rounded-lg aspect-square max-w-sm mx-auto font-ddin">
       <div className="flex justify-between items-center mb-4 p-4">
         <button
-          onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}
+          onClick={() => onDateChange(new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1, 1))}
           className="text-gray-300 hover:text-black"
         >
           &lt;
         </button>
         <h2 className="text-lg font-semibold text-black">
-          {currentDate.getFullYear()}년 {monthNames[currentDate.getMonth()]}
+          {selectedDate.getFullYear()}년 {monthNames[selectedDate.getMonth()]}
         </h2>
         <button
-          onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}
+          onClick={() => onDateChange(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1))}
           className="text-gray-300 hover:text-black"
         >
           &gt;
@@ -164,7 +163,7 @@ const Calendar = ({ onDateChange, initialDate }) => {
 
 Calendar.propTypes = {
   onDateChange: PropTypes.func.isRequired,
-  initialDate: PropTypes.instanceOf(Date),
+  selectedDate: PropTypes.instanceOf(Date),
 };
 
 Calendar.defaultProps = {
