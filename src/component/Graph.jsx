@@ -2,41 +2,37 @@ import React, { useState, useEffect } from 'react';
 
 const Graph = () => {
   const [animate, setAnimate] = useState(false);
+  const [data, setData] = useState([]);
 
-  // Original data
-  const originalData = [
-    { day: '월', score: 3 },
-    { day: '화', score: 4 },
-    { day: '수', score: 3.5 },
-    { day: '목', score: 5 },
-    { day: '금', score: 4.5 },
-    { day: '토', score: 3 },
-    { day: '일', score: 4 },
-  ];
+  // Generate data for the last 7 days
+  useEffect(() => {
+    const generateData = () => {
+      const today = new Date();
+      const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const date = new Date(today);
+        date.setDate(today.getDate() - i);
+        return date;
+      }).reverse();
 
-  // Get current day of the week as an index starting from Monday (0) to Sunday (6)
-  const getTodayIndex = () => {
-    const today = new Date();
-    const day = today.getDay();
-    // Map Sunday (0) to last in the custom index where Monday is first (0)
-    return day === 0 ? 6 : day - 1;
-  };
+      const newData = last7Days.map((date) => ({
+        day: ['일', '월', '화', '수', '목', '금', '토'][date.getDay()],
+        score: Math.random() * 2 + 3, // Random score between 3 and 5
+        date: date,
+      }));
 
-  // Rearrange the data so the today’s index day is last
-  const reorderData = (data, todayIndex) => {
-    return data.slice(todayIndex + 1).concat(data.slice(0, todayIndex + 1));
-  };
+      setData(newData);
+    };
 
-  const todayIndex = getTodayIndex();
-  const data = reorderData(originalData, todayIndex);
-
-  const maxScore = 5;
-  const averageScore = data.reduce((sum, item) => sum + item.score, 0) / data.length;
+    generateData();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => setAnimate(true), 100);
     return () => clearTimeout(timer);
   }, []);
+
+  const maxScore = 5;
+  const averageScore = data.length > 0 ? data.reduce((sum, item) => sum + item.score, 0) / data.length : 0;
 
   // Determine bar color based on whether the day is today
   const getBarColor = (index) => {
@@ -45,7 +41,7 @@ const Graph = () => {
 
   // Format score to show one decimal place only if necessary
   const formatScore = (score) => {
-    return score % 1 === 0 ? score.toString() : score.toFixed(1);
+    return score % 1 === 0 ? score.toFixed(0) : score.toFixed(1);
   };
 
   return (
