@@ -46,7 +46,7 @@ async function postRefreshToken() {
     refreshToken: getLocalStorageItem(REFRESH_TOKEN_KEY),
   };
 
-  return api.post('/api/auth/refresh', requestData, {
+  return api.post('/api/v1/auth/refresh', requestData, {
     headers: {
       Authorization: `Bearer ${getLocalStorageItem(ACCESS_TOKEN_KEY)}`,
     },
@@ -58,7 +58,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response.status === 401) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -72,7 +72,6 @@ api.interceptors.response.use(
           });
       }
 
-      originalRequest._retry = true;
       isRefreshing = true;
 
       return new Promise((resolve, reject) => {
