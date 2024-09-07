@@ -13,7 +13,7 @@ const BigButton = ({ onClick, children, className = '' }) => {
 };
 
 BigButton.propTypes = {
-  onClick: PropTypes.func.isRequired,
+  onClick: PropTypes.func,
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
 };

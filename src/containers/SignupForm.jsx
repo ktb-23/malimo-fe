@@ -1,9 +1,6 @@
-// src/components/SignupForm.jsx
-
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useValidation } from '../hooks/useValidation';
-import { useCheckDuplicate } from '../hooks/useCheckDuplicate';
 import { register } from '../api/register';
 import WebNav from '../containers/WebNav';
 import BigButton from '../component/BigButton';
@@ -17,7 +14,6 @@ const SignupForm = () => {
   const navigate = useNavigate();
 
   const { errors, validate, resetErrors } = useValidation();
-  const { duplicateErrors, checkDuplicateNickname, checkDuplicateEmail, resetDuplicateErrors } = useCheckDuplicate();
 
   const resetForm = () => {
     setNickname('');
@@ -25,7 +21,7 @@ const SignupForm = () => {
     setPassword('');
     setConfirmPassword('');
     resetErrors();
-    resetDuplicateErrors();
+    // resetDuplicateErrors();
   };
 
   const handleSignup = async (e) => {
@@ -41,19 +37,13 @@ const SignupForm = () => {
       return;
     }
 
-    // 서버 측 중복 검사
-    const isNicknameUnique = await checkDuplicateNickname(nickname);
-    const isEmailUnique = await checkDuplicateEmail(email);
-
-    if (!isNicknameUnique || !isEmailUnique) {
-      return;
-    }
-
     // 모든 검증을 통과했다면 회원가입 API 호출
     const result = await register({ nickname, email, password });
+    console.log(result);
 
     if (result.success) {
       console.log('회원가입 성공:', result.message);
+      alert('회원가입이 완료되었습니다.');
       navigate('/login');
     } else {
       console.error('회원가입 실패:', result.message);
@@ -64,9 +54,9 @@ const SignupForm = () => {
 
   // 모든 에러 메시지를 합치고 첫 번째 에러 메시지만 선택
   const errorMessage = useMemo(() => {
-    const allErrors = { ...errors, ...duplicateErrors };
+    const allErrors = { ...errors };
     return Object.values(allErrors).find((error) => error !== '') || '';
-  }, [errors, duplicateErrors]);
+  }, [errors]);
 
   return (
     <div className="flex h-screen w-screen">
@@ -81,6 +71,7 @@ const SignupForm = () => {
           </h2>
           <form onSubmit={handleSignup}>
             <Input
+              name="nickname"
               type="text"
               placeholder="닉네임"
               value={nickname}
@@ -88,6 +79,7 @@ const SignupForm = () => {
               required
             />
             <Input
+              name="email"
               type="email"
               placeholder="이메일"
               value={email}
@@ -95,6 +87,7 @@ const SignupForm = () => {
               required
             />
             <Input
+              name="password"
               type="password"
               placeholder="비밀번호"
               value={password}
@@ -102,6 +95,7 @@ const SignupForm = () => {
               required
             />
             <Input
+              name="confirmPassword"
               type="password"
               placeholder="비밀번호 확인"
               value={confirmPassword}
@@ -109,7 +103,9 @@ const SignupForm = () => {
               required
             />
             {errorMessage && <div className="text-red text-sm mb-4">{errorMessage}</div>}
-            <BigButton type="submit">회원가입</BigButton>
+            <BigButton type="submit" onClick={handleSignup}>
+              회원가입
+            </BigButton>
           </form>
         </div>
       </div>

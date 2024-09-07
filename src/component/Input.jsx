@@ -37,9 +37,4 @@ Input.propTypes = {
   error: PropTypes.string,
 };
 
-Input.defaultProps = {
-  type: 'text',
-  required: false,
-};
-
 export default Input;

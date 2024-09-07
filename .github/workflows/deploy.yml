@@ -1,34 +1,35 @@
-name: Sean Front End CI/CD
+name: Deploy to S3
 
 on:
-   push:
-      branches:
-         - main
-   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-   build:
-      runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest
 
-      steps:
-         - name: Checkout code
-           uses: actions/checkout@v4
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-         - name: Set up Node.js
-           uses: actions/setup-node@v4
-           with:
-              node-version: 22.x
+    - name: Set up Node.js (optional)
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
 
-         - name: Install dependencies
-           run: npm ci  # yarn install -> npm ci로 변경
+    - name: Install dependencies (optional)
+      run: npm install
 
-         - name: Run build script
-           run: npm run build  # yarn build -> npm run build로 변경
+    - name: Build project (optional)
+      run: npm run build
 
-         - name: Upload to S3
-           env:
-              AWS_ACCESS_KEY_ID: ${{ secrets.SEAN_AWS_ACCESS_KEY_ID }}
-              AWS_SECRET_ACCESS_KEY: ${{ secrets.SEAN_AWS_SECRET_ACCESS_KEY }}
-              AWS_REGION: 'ap-northeast-2'
-           run: |
-              aws s3 cp ./dist s3://my-little-memory-storage --recursive
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2
+
+    - name: Sync S3 bucket
+      run: aws s3 cp ./dist/ s3://my-little-memory-storage/ --recursive

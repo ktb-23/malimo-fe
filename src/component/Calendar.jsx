@@ -1,69 +1,71 @@
-import React, { useState } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
+import dayjs from '../util/dayjs';
 
-const Calendar = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(null);
+const Calendar = ({loading, error, monthMetaData, onDateChange, selectedDate }) => {
 
   const daysInMonth = (date) => {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    return dayjs(date).daysInMonth();
   };
 
   const firstDayOfMonth = (date) => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+    return dayjs(date).startOf('month').format('d');
   };
 
   const renderCalendar = () => {
-    const totalDays = daysInMonth(currentDate);
-    const firstDay = firstDayOfMonth(currentDate);
+    const totalDays = daysInMonth(selectedDate);
+    const firstDay = firstDayOfMonth(selectedDate);
     const days = [];
 
-    // Add weekday headers
+    // Weekday headers
     const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
     weekDays.forEach((day, index) => {
       days.push(
         <div
           key={`weekday-${index}`}
           className={`flex items-center justify-center text-sm font-medium
-            ${index === 0 ? 'text-red-500' : index === 6 ? 'text-blue' : 'text-black'}`}
+            ${index === 0 ? 'text-red' : index === 6 ? 'text-blue' : 'text-black'}`}
         >
           {day}
         </div>,
       );
     });
 
-    // Add empty cells for days before the first day of the month
+    // Empty cells for days before the first day of the month
     for (let i = 0; i < firstDay; i++) {
       days.push(<div key={`empty-${i}`}></div>);
     }
 
-    // Add cells for each day of the month
+    // Cells for each day of the month
     for (let i = 1; i <= totalDays; i++) {
-      const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
-      const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
-      const dayOfWeek = date.getDay();
+      const currentDay = dayjs(selectedDate).date(i).format('YYYY.MM.DD')
+      const isSelected = currentDay === selectedDate;
+      const dayOfWeek = dayjs(currentDay).format('d');
+      const hasDiaryEntry = monthMetaData[currentDay];
 
-      let dayColor = 'text-gray-300';
+      let dayColor = '';
       if (dayOfWeek === 0) dayColor = 'text-red';
-      if (dayOfWeek === 6) dayColor = 'text-blue';
+      else if (dayOfWeek === 6) dayColor = 'text-blue';
+      else dayColor = 'text-gray-700';
 
       days.push(
         <div
           key={`day-${i}`}
-          onClick={() => setSelectedDate(date)}
+          onClick={() => onDateChange(currentDay)}
           className={`flex items-center justify-center text-sm cursor-pointer relative
-            ${isSelected ? 'font-semibold' : 'hover:bg-gray-100 active:bg-gray-200'} 
-            ${dayColor} transition-colors duration-200`}
+            ${isSelected ? 'font-semibold' : 'hover:bg-gray-100 active:bg-gray-200'}
+            transition-colors duration-200`}
         >
-          <div className="w-8 h-8 flex items-center justify-center rounded-full">
+          <div
+            className={`w-8 h-8 flex items-center justify-center rounded-full
+            ${hasDiaryEntry ? 'bg-skyblue text-white' : dayColor}`}
+          >
             {i}
-            {isSelected && (
-              <div className="absolute inset-2 border-2 border-blue rounded-full pointer-events-none"></div>
-            )}
           </div>
+          {isSelected && <div className="absolute inset-2 border-2 border-blue rounded-full pointer-events-none"></div>}
         </div>,
       );
     }
-
     return <div className="grid grid-cols-7 gap-1 h-full">{days}</div>;
   };
 
@@ -73,24 +75,34 @@ const Calendar = () => {
     <div className="bg-white rounded-lg aspect-square max-w-sm mx-auto font-ddin">
       <div className="flex justify-between items-center mb-4 p-4">
         <button
-          onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}
+          onClick={() => onDateChange(dayjs(selectedDate).subtract(1, 'month').startOf('month').format('YYYY.MM.DD'))}
           className="text-gray-300 hover:text-black"
         >
           &lt;
         </button>
         <h2 className="text-lg font-semibold text-black">
-          {currentDate.getFullYear()}년 {monthNames[currentDate.getMonth()]}
+          {dayjs(selectedDate).year()}년 {monthNames[dayjs(selectedDate).month()]}
         </h2>
         <button
-          onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}
+          onClick={() => onDateChange(dayjs(selectedDate).add(1, 'month').startOf('month').format('YYYY.MM.DD'))}
           className="text-gray-300 hover:text-black"
         >
           &gt;
         </button>
       </div>
+      {loading && <div className="text-center">로딩 중...</div>}
+      {error && <div className="text-red-500 text-center">{error}</div>}
       <div className="px-4 pb-4 h-[calc(100%-4rem)]">{renderCalendar()}</div>
     </div>
   );
+};
+
+Calendar.propTypes = {
+  loading: PropTypes.bool.isRequired,
+  error: PropTypes.string,
+  monthMetaData: PropTypes.object.isRequired,
+  onDateChange: PropTypes.func.isRequired,
+  selectedDate: PropTypes.string,
 };
 
 export default Calendar;

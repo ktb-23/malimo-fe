@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import api from '../config/apiconfig';
 
+//XXX: 서버에는 중복 검사 API가 없습니다.
 export const useCheckDuplicate = () => {
   const [duplicateErrors, setDuplicateErrors] = useState({});
 
