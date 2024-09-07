@@ -5,6 +5,9 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   assetsInclude: ['**/*.GIF'],
+  build: {
+    outDir: 'dist', // 빌드 파일이 생성되는 디렉토리
+  },
   base: '/dist/',
   server: {
     proxy: {
