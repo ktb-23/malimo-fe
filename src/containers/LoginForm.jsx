@@ -56,9 +56,7 @@ const LoginForm = () => {
       const result = await login(email, password);
       if (result.success) {
         console.log('로그인 성공:', result.nickname);
-        // TODO: 토큰을 저장하고 사용자 상태를 업데이트하는 로직을 여기에 추가
         navigate('/main');
-        window.location.reload();
       } else {
         setLoginError(result.errorType);
       }
