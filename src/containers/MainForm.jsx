@@ -52,7 +52,7 @@ const MainForm = () => {
 
   useEffect(() => {
     fetchAdvice(selectedDate);
-  }, [[selectedDate]]);
+  }, [selectedDate]);
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
