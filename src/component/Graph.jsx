@@ -13,14 +13,19 @@ const Graph = ({ analicticData }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  if (total_scores === null) {
+  if (!total_scores || total_scores.every((score) => score === null || isNaN(score))) {
     return <div className="text-center">데이터가 없습니다.</div>;
   }
 
   const maxScore = 5;
-  const reasonableData = total_scores.filter((v) => v);
+
+  // Convert all values to numbers and filter out invalid values
+  const validScores = total_scores
+    .map((score) => parseFloat(score)) // Convert to number
+    .filter((score) => !isNaN(score)); // Remove NaN values
+
   const averageScore =
-    reasonableData.length !== 0 ? reasonableData.reduce((sum, item) => sum + item, 0) / reasonableData.length : 0;
+    validScores.length !== 0 ? validScores.reduce((sum, score) => sum + score, 0) / validScores.length : 0;
 
   const getBarColor = (index) => {
     return index === Number(dayjs().format('d')) ? 'bg-blue' : 'bg-skyblue';
@@ -29,6 +34,7 @@ const Graph = ({ analicticData }) => {
   const formatScore = (score) => {
     return score % 1 === 0 ? score.toFixed(0) : score.toFixed(1);
   };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 max-w-md mx-auto font-noto-sans-kr">
       <h2 className="text-left text-xl font-bold text-black mb-4">감정 변화 통계</h2>
@@ -40,15 +46,11 @@ const Graph = ({ analicticData }) => {
 
         <div className="flex-1">
           <div className="flex items-end space-x-2 h-32">
-            {' '}
-            {/* 높이를 h-32로 증가 */}
             {total_scores
-              .map((item) => (item === null ? 0 : Number(item)))
+              .map((item) => (item === null ? 0 : parseFloat(item))) // Convert to number
               .map((item, index) => (
                 <div key={index} className="flex flex-col items-center flex-1">
                   <div className="h-28 w-full bg-white rounded-t-lg relative overflow-visible">
-                    {' '}
-                    {/* 높이를 h-28로 증가하고 overflow-visible 추가 */}
                     <div
                       className={`absolute bottom-0 w-full rounded-t-lg transition-all duration-1000 ease-out ${
                         animate ? '' : 'h-0'

@@ -39,8 +39,8 @@ const MainForm = () => {
     }
   };
 
-  const fetchAdvice = async () => {
-    const result = await searchAdvice(dayjs().format('YYYY.MM.DD'));
+  const fetchAdvice = async (date) => {
+    const result = await searchAdvice(date);
     if (result.success) {
       setAnalicticData(result.data);
     }
@@ -51,8 +51,8 @@ const MainForm = () => {
   }, [selectedDate]);
 
   useEffect(() => {
-    fetchAdvice();
-  }, []);
+    fetchAdvice(selectedDate);
+  }, [[selectedDate]]);
 
   const handleDateChange = (date) => {
     setSelectedDate(date);

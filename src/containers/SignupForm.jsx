@@ -39,9 +39,11 @@ const SignupForm = () => {
 
     // 모든 검증을 통과했다면 회원가입 API 호출
     const result = await register({ nickname, email, password });
+    console.log(result);
 
     if (result.success) {
       console.log('회원가입 성공:', result.message);
+      alert('회원가입이 완료되었습니다.');
       navigate('/login');
     } else {
       console.error('회원가입 실패:', result.message);
